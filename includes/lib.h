@@ -28,23 +28,29 @@ info(const char * fmt, ...);
 /* Structs
  * ------- */
 
-struct event_key_action {
+struct key_action {
   bool pressed;
   int key;
 };
 
 struct event_queue {
-  struct event_key_action queue[SIZE_EVENT_QUEUE];
-  struct event_key_action * current;
-  struct event_key_action * last;
+  struct key_action queue[SIZE_EVENT_QUEUE];
+  struct key_action * current;
+  struct key_action * last;
+};
+
+struct key_status {
+  bool pressed;
+  bool change_to_process;
 };
 
 /* External definitions.
  * --------------------- */
 
-extern bool key_down[NUM_KEYS_DOWN];
+extern struct key_status key_status[NUM_KEYS_DOWN];
 extern struct event_queue struct_event_queue;
 extern struct event_queue * event_queue;
+extern GLFWwindow * current_window;
 
 /* Lib functions.
  * -------------- */

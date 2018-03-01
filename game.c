@@ -36,6 +36,7 @@ int main(void)
     error("Error!\n");
 
     glfwSetKeyCallback(window, key_callback);
+    current_window = window;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
