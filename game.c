@@ -1,8 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-
-#include <GL/gl3w.h>
-#include <GLFW/glfw3.h>
+#include "lib.h"
 
 int main(void)
 {
@@ -35,6 +31,8 @@ int main(void)
 
     printf("OpenGL %s, GLSL %s\n", glGetString(GL_VERSION),
         glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+    hello();
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
