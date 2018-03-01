@@ -9,7 +9,7 @@ int main(void)
 
     if (!glfwInit()) {
       printf("failed to initialize GLFW.\n");
-      return -1;
+      return EXIT_FAILURE;
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -19,18 +19,18 @@ int main(void)
     GLFWwindow * window = glfwCreateWindow(1000, 600, "awesome", NULL, NULL);
 
     if (!window) {
-      return -1;
+      return EXIT_FAILURE;
     }
 
     glfwMakeContextCurrent(window);
     if (gl3wInit()) {
       printf("failed to initialize OpenGL\n");
-      return -1;
+      return EXIT_FAILURE;
     }
 
     /* Initialize the library */
     if (!glfwInit()) {
-        return -1;
+        return EXIT_FAILURE;
     }
 
     printf("OpenGL %s, GLSL %s\n", glGetString(GL_VERSION),
