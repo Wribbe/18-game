@@ -5,12 +5,17 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdarg.h>
+#include <unistd.h>
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
 #define NUM_KEYS_DOWN 512
 #define SIZE_EVENT_QUEUE 512
+
+/* Macros
+ * ------ */
+#define UNUSED(x) (void)x;
 
 /* Logging functions.
  * ------------------ */
@@ -25,7 +30,6 @@ info(const char * fmt, ...);
 
 struct event_key_action {
   bool pressed;
-  bool released;
   int key;
 };
 
@@ -39,15 +43,19 @@ struct event_queue {
  * --------------------- */
 
 extern bool key_down[NUM_KEYS_DOWN];
-extern struct event_queue event_queue;
+extern struct event_queue struct_event_queue;
+extern struct event_queue * event_queue;
 
 /* Lib functions.
  * -------------- */
 
 void
-event_queue_add(int key, bool pressed, bool released);
+event_queue_add(int key, bool pressed);
 
 void
-event_queue_parse(void);
+event_queue_process(void);
+
+void
+key_callback(GLFWwindow * window, int key, int scancode, int action, int mods);
 
 #endif

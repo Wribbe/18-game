@@ -35,6 +35,8 @@ int main(void)
     info("Information!\n");
     error("Error!\n");
 
+    glfwSetKeyCallback(window, key_callback);
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -46,6 +48,8 @@ int main(void)
 
         /* Poll for and process events */
         glfwPollEvents();
+        event_queue_process();
+
     }
 
     glfwTerminate();
