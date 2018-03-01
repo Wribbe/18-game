@@ -32,7 +32,8 @@ int main(void)
     printf("OpenGL %s, GLSL %s\n", glGetString(GL_VERSION),
         glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-    hello();
+    info("Information!\n");
+    error("Error!\n");
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
