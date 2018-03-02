@@ -15,6 +15,8 @@ H_FILES := $(wildcard includes/*.h)
 
 # Look for *.c files in gl3w/src.
 vpath %.c gl3w/src
+# Look for *.c files in src.
+vpath %.c src
 
 all: folders $(DIR_BIN)/game
 
