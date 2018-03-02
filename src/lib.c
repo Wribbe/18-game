@@ -62,7 +62,7 @@ init_window(size_t width, size_t height, const char * title)
 }
 
 char *
-read_file(const char * filepath)
+file_read(const char * filepath)
 {
   FILE * handle = fopen(filepath, "r");
   if (handle == NULL) {
@@ -113,8 +113,8 @@ shader_program_create(const char * path_vertex, const char * path_fragment)
   GLuint program_shader = glCreateProgram();
 
   /* Read file sources. */
-  char * source_vertex = read_file(path_vertex);
-  char * source_fragment = read_file(path_fragment);
+  char * source_vertex = file_read(path_vertex);
+  char * source_fragment = file_read(path_fragment);
 
   if (source_vertex == NULL || source_fragment == NULL) {
     error("Failed to read source for shader(s).\n");
