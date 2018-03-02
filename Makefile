@@ -19,9 +19,9 @@ vpath %.c gl3w/src
 # Look for *.c files in src.
 vpath %.c src
 
-all: folders $(DIR_BIN)/game
+all: dirs $(DIR_BIN)/game
 
-folders:
+dirs:
 # Check if gl3w is present.
 	@[ -d "./gl3w" ] || { \
 		git clone https://github.com/skaslev/gl3w && \
