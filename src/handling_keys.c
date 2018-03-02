@@ -89,6 +89,8 @@ event_evalute_bindings(void)
 void
 event_queue_process(void)
 {
+  /* Trigger glfw polling of events. */
+  glfwPollEvents();
   /* Parse all actions in the queue. */
   struct key_action * action = event_queue->queue;
   for (;action < event_queue->current; action++) {

@@ -48,7 +48,6 @@ int main(void)
         glfwSwapBuffers(window);
 
         /* Poll for and process events */
-        glfwPollEvents();
         event_queue_process();
 
     }
