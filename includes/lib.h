@@ -55,6 +55,9 @@ extern GLFWwindow * current_window;
 GLFWwindow *
 init_window(size_t width, size_t height, const char * title);
 
+char *
+read_file(const char * filepath);
+
 /* handling_keys.c */
 void
 event_queue_process(void);

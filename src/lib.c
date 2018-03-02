@@ -60,3 +60,34 @@ init_window(size_t width, size_t height, const char * title)
     current_window = window;
     return window;
 }
+
+char *
+read_file(const char * filepath)
+{
+  FILE * handle = fopen(filepath, "r");
+  if (handle == NULL) {
+    error("Error when trying to open file %s.\n", filepath);
+    return NULL;
+  }
+  /* Get file-size. */
+  fseek(handle, 0, SEEK_END);
+  size_t size_file = ftell(handle);
+  rewind(handle);
+  /* Allocate data. */
+  char * data = malloc(sizeof(char) * (size_file + 1));
+  if (data == NULL) {
+    error("Could not allocate data for storing file content (%s).\n",
+        filepath);
+    return NULL;
+  }
+  /* Copy data. */
+  size_t read = fread(data, size_file, 1, handle);
+  if (read != 1) {
+    error("Error when reading file; %s\n", filepath);
+    free(data);
+    return NULL;
+  }
+  fclose(handle);
+  data[size_file] = '\0';
+  return data;
+}
