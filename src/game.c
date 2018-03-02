@@ -12,7 +12,7 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow * window = glfwCreateWindow(1000, 600, "awesome", NULL, NULL);
+    GLFWwindow * window = glfwCreateWindow(1000, 600, "2018 -- Game", NULL, NULL);
 
     if (!window) {
       return EXIT_FAILURE;
