@@ -9,12 +9,13 @@ int main(void)
       return EXIT_FAILURE;
     }
 
-    char * source_vert = read_file("src/shaders/default.vert");
-    info("Read source from vertex shader: %s\n", source_vert);
-    char * source_frag = read_file("src/shaders/default.frag");
-    info("Read source from fragment shader: %s\n", source_frag);
-    free(source_vert);
-    free(source_frag);
+    GLuint program_default = shader_program_create(
+        "src/shaders/default.vert",
+        "src/shaders/default.frag");
+    if (program_default == 0) {
+      error("Shader program compilation failed.\n");
+      return EXIT_FAILURE;
+    }
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -31,5 +32,5 @@ int main(void)
     }
 
     glfwTerminate();
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -58,6 +58,9 @@ init_window(size_t width, size_t height, const char * title);
 char *
 read_file(const char * filepath);
 
+GLuint
+shader_program_create(const char * path_vertex, const char * path_fragment);
+
 /* handling_keys.c */
 void
 event_queue_process(void);

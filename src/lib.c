@@ -91,3 +91,90 @@ read_file(const char * filepath)
   data[size_file] = '\0';
   return data;
 }
+
+GLuint
+shader_program_create(const char * path_vertex, const char * path_fragment)
+{
+
+  /* Set up buffer for reporting any shader compilation and program linking
+   * errors.
+   *
+   *   Note: This needs to be before any 'goto' statements because of the
+   *   dynamic allocation of buffer_shader_error, as per the C99 standard.
+   *
+   * */
+  int status = 0;
+  size_t size_buffer_shader_error = 512;
+  char buffer_shader_error[size_buffer_shader_error];
+
+  /* Set up shader primitives for use later. */
+  GLuint shader_vertex = glCreateShader(GL_VERTEX_SHADER);
+  GLuint shader_fragment = glCreateShader(GL_FRAGMENT_SHADER);
+  GLuint program_shader = glCreateProgram();
+
+  /* Read file sources. */
+  char * source_vertex = read_file(path_vertex);
+  char * source_fragment = read_file(path_fragment);
+
+  if (source_vertex == NULL || source_fragment == NULL) {
+    error("Failed to read source for shader(s).\n");
+    goto error;
+  }
+
+  /* Compile and check vertex shader. */
+  glShaderSource(shader_vertex, 1, (const char **)&source_vertex, NULL);
+  glCompileShader(shader_vertex);
+  glGetShaderiv(shader_vertex, GL_COMPILE_STATUS, &status);
+  if (status == 0) {
+    glGetShaderInfoLog(shader_fragment, size_buffer_shader_error, NULL,
+        buffer_shader_error);
+    error("Compilation of vertex shader failed with: \n%s\nSource:\n%s\n",
+        buffer_shader_error, source_vertex);
+    goto error;
+  }
+
+  /* Compile and check fragment shader. */
+  glShaderSource(shader_fragment, 1, (const char **)&source_fragment, NULL);
+  glCompileShader(shader_fragment);
+  glGetShaderiv(shader_fragment, GL_COMPILE_STATUS, &status);
+  if (status == 0) {
+    glGetShaderInfoLog(shader_fragment, size_buffer_shader_error, NULL,
+        buffer_shader_error);
+    error("Compilation of fragment shader failed with: \n%s\nSource:\n%s\n",
+        buffer_shader_error, source_fragment);
+    goto error;
+  }
+
+  /* Link the shaders to the shader program. */
+  glAttachShader(program_shader, shader_vertex);
+  glAttachShader(program_shader, shader_fragment);
+  glLinkProgram(program_shader);
+  /* Check the linking. */
+  if (status == 0) {
+    glGetProgramInfoLog(program_shader, size_buffer_shader_error, NULL,
+        buffer_shader_error);
+    error("Linking of shader program failed with: %s\n", buffer_shader_error);
+    goto error;
+  }
+
+  /* Delete shaders and free memory allocated for sources. */
+  glDeleteShader(shader_vertex);
+  glDeleteShader(shader_fragment);
+  free(source_vertex);
+  free(source_fragment);
+
+  return program_shader;
+
+error:
+
+  if (source_vertex != NULL) {
+    free(source_vertex);
+  }
+  if (source_fragment != NULL) {
+    free(source_fragment);
+  }
+  glDeleteShader(shader_vertex);
+  glDeleteShader(shader_fragment);
+  glDeleteProgram(program_shader);
+  return 0;
+}
