@@ -12,6 +12,7 @@ CC := gcc
 DIR_BIN := bin
 
 H_FILES := $(wildcard includes/*.h)
+C_FILES := $(wildcard src/*.c)
 
 # Look for *.c files in gl3w/src.
 vpath %.c gl3w/src
@@ -30,5 +31,5 @@ folders:
 # Check if bin exists.
 	@[ -d $(DIR_BIN) ] || mkdir $(DIR_BIN)
 
-$(DIR_BIN)/game : game.c gl3w.c lib.c $(H_FILES)
+$(DIR_BIN)/game : $(C_FILES) gl3w.c $(H_FILES)
 	$(CC) $(filter %.c,$^) -o $@ $(CFLAGS) $(INCLUDES) $(INCLUDES_CLONED) $(GENERAL_LIBRARIES) $(GRAPHICS_FLAGS)

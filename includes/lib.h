@@ -47,17 +47,12 @@ struct key_status {
 /* External definitions.
  * --------------------- */
 
-extern struct key_status key_status[NUM_KEYS_DOWN];
-extern struct event_queue struct_event_queue;
-extern struct event_queue * event_queue;
 extern GLFWwindow * current_window;
 
 /* Lib functions.
  * -------------- */
 
-void
-event_queue_add(int key, bool pressed);
-
+/* handling_keys.c */
 void
 event_queue_process(void);
 
