@@ -52,6 +52,9 @@ extern GLFWwindow * current_window;
 /* Lib functions.
  * -------------- */
 
+GLFWwindow *
+init_window(size_t width, size_t height, const char * title);
+
 /* handling_keys.c */
 void
 event_queue_process(void);
