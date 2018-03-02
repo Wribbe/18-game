@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
@@ -57,6 +58,9 @@ init_window(size_t width, size_t height, const char * title);
 
 char *
 file_read(const char * filepath);
+
+GLfloat *
+file_read_floats(const char * filepath, size_t * num_floats);
 
 GLuint
 shader_program_create(const char * path_vertex, const char * path_fragment);

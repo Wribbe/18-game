@@ -17,6 +17,8 @@ int main(void)
       return EXIT_FAILURE;
     }
 
+    file_read_floats("includes/lib.h", NULL);
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {

@@ -92,6 +92,81 @@ file_read(const char * filepath)
   return data;
 }
 
+char *
+eat_comment(char * c, char const * end)
+  /* Eat the next comment, including newlines and return pointer to next
+   * non-comment character. */
+{
+  if (*c == '/' && c+2 <= end) {
+    char next = *(c+1);
+    /* Multi-line comment. */
+    if (next == '*') {
+      /* Advance past the comment part first. */
+      c++; // At 'next'.
+      c++; // At char past 'next'.
+      /* Keep on going until hitting end of comment or end. */
+      for (;;c++) {
+        if (c >= end) {
+          break;
+        }
+        if (*c == '*' && c+1 <= end) {
+          next = *(c+1);
+          if (next == '/') {
+            /* Skip over the next char. */
+            c++;
+            c++;
+            /* If the next char is a newline, skip that too. */
+            if (*c == '\n') {
+              c++;
+            }
+            break;
+          }
+        }
+      }
+    /* Single line comment. */
+    } else if (next == '/') {
+      /* Advance past comment part as previously. */
+      c++; // At 'next'.
+      c++; // One character past 'next'.
+      /* Keep on going until end is hit or there is a newline. */
+      for (; *c != '\n' && c <= end; c++){};
+      /* Skip the actual newline character if end was not hit. */
+      if (c != end) {
+        c++;
+      }
+    }
+  }
+  return c;
+}
+
+GLfloat *
+file_read_floats(const char * filepath, size_t * num_floats)
+  /* Read file contents, and return a array of floats.
+   *
+   *   Note: Could probably _try_ to do something fancy here and count the
+   *   number of commas etc. Will probably fail. Also want to ignore comments.
+   *   Use expanding (calloc) array and try to convert everything to floats?
+   *
+   *   */
+{
+  char * data = file_read(filepath);
+
+  if (data == NULL) {
+    error("Could not read data that should be read as floats.\n");
+    return NULL;
+  }
+
+  char * end = data + strlen(data);
+
+  char * c = data;
+  for (; c <= end; c++) {
+    c = eat_comment(c, end);
+    printf("%c", *c);
+  }
+  free(data);
+  return 0;
+}
+
 GLuint
 shader_program_create(const char * path_vertex, const char * path_fragment)
 {
