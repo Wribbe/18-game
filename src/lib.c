@@ -88,6 +88,12 @@ event_evalute_bindings(void)
   if (key_up_single(GLFW_KEY_SPACE)) {
     printf("RELEASED SPACE!\n");
   }
+  if (key_down_single(GLFW_KEY_SPACE)) {
+    printf("SPACE PRESSED!\n");
+  }
+  if (key_down(GLFW_KEY_SPACE)) {
+    printf("SPAAAAACE!\n");
+  }
 }
 
 void
