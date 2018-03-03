@@ -34,6 +34,17 @@ int main(void)
     struct v3 camera_right = v3_cross(&direction_up, &camera_direction);
     camera_right = v3_normalize(&camera_right);
 
+    struct m4 transform = {{
+      {1.0f, 0.0f, 0.0f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {0.0f, 0.0f, 1.0f, 0.0f},
+      {0.0f, 0.0f, 0.0f, 1.0f},
+    }};
+
+    GLuint location_transform = glGetUniformLocation(program_default,
+        "transform");
+    glUniformMatrix4fv(location_transform, 1, GL_TRUE, transform.m[0]);
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
