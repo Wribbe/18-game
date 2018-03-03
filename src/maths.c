@@ -40,7 +40,7 @@ m4_print(struct m4 * m4)
 }
 
 struct v3
-v3_sub_v3(struct v3 * v1, struct v3 * v2)
+v3_sub(struct v3 * v1, struct v3 * v2)
 {
   return (struct v3){{{
     v1->x - v2->x,
@@ -61,8 +61,11 @@ v3_normalize(struct v3 * v)
 }
 
 struct v3
-v3_sub_v3_norm(struct v3 * v1, struct v3 * v2)
+v3_cross(struct v3 * a, struct v3 * b)
 {
-  struct v3 temp = v3_sub_v3(v1, v2);
-  return v3_normalize(&temp);
+  return (struct v3) {{{
+    a->y*b->z - a->z*b->y,
+    a->z*b->x - a->x*b->z,
+    a->x*b->y - a->y*b->x,
+  }}};
 }

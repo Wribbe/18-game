@@ -125,12 +125,12 @@ void
 m4_print(struct m4 * m4);
 
 struct v3
-v3_sub_v3(struct v3 * v1, struct v3 * v2);
+v3_sub(struct v3 * v1, struct v3 * v2);
 
 struct v3
 v3_normalize(struct v3 * v3);
 
 struct v3
-v3_sub_v3_norm(struct v3 * v1, struct v3 * v2);
+v3_cross(struct v3 * a, struct v3 * b);
 
 #endif

@@ -26,9 +26,13 @@ int main(void)
 
     struct v3 camera_position = {{{0.0f, 0.0f, 3.0f}}};
     struct v3 camera_target = {{{0.0f, 0.0f, 0.0f}}};
+    struct v3 direction_up = {{{0.0f, 1.0f, 0.0f}}};
 
-    struct v3 camera_direction = v3_sub_v3_norm(&camera_position,
-        &camera_target);
+    struct v3 camera_direction = v3_sub(&camera_position, &camera_target);
+    camera_direction = v3_normalize(&camera_direction);
+
+    struct v3 camera_right = v3_cross(&direction_up, &camera_direction);
+    camera_right = v3_normalize(&camera_right);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
