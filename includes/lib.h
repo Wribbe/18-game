@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>

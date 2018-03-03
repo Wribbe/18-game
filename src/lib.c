@@ -93,22 +93,22 @@ file_read(const char * filepath)
 }
 
 char *
-eat_comment(char * c, char const * end)
+eat_comment(char * c, char const * string_end)
   /* Eat the next comment, including newlines and return pointer to next
    * non-comment character. */
 {
-  if (*c == '/' && c+2 <= end) {
+  if (*c == '/' && c+2 <= string_end) {
     char next = *(c+1);
     /* Multi-line comment. */
     if (next == '*') {
       /* Advance past the comment part first. */
       c += 2;
-      /* Keep on going until hitting end of comment or end. */
+      /* Keep on going until hitting string_end of comment or string_end. */
       for (;;c++) {
-        if (c >= end) {
+        if (c >= string_end) {
           break;
         }
-        if (*c == '*' && c+1 <= end) {
+        if (*c == '*' && c+1 <= string_end) {
           next = *(c+1);
           if (next == '/') {
             /* Skip over the next char. */
@@ -125,10 +125,10 @@ eat_comment(char * c, char const * end)
     } else if (next == '/') {
       /* Advance past comment part as previously. */
       c += 2;
-      /* Keep on going until end is hit or there is a newline. */
-      for (; *c != '\n' && c <= end; c++){};
-      /* Skip the actual newline character if end was not hit. */
-      if (c != end) {
+      /* Keep on going until string_end is hit or there is a newline. */
+      for (; *c != '\n' && c <= string_end; c++){};
+      /* Skip the actual newline character if string_end was not hit. */
+      if (c != string_end) {
         c++;
       }
     }
@@ -142,7 +142,7 @@ file_read_floats(const char * filepath, size_t * num_floats)
    *
    *   Note: Could probably _try_ to do something fancy here and count the
    *   number of commas etc. Will probably fail. Also want to ignore comments.
-   *   Use expanding (calloc) array and try to convert everything to floats?
+   *   Use expanding (realloc) array and try to convert everything to floats?
    *
    *   */
 {
@@ -153,15 +153,68 @@ file_read_floats(const char * filepath, size_t * num_floats)
     return NULL;
   }
 
-  char * end = data + strlen(data);
-
+  char * string_end = data + strlen(data);
   char * c = data;
-  for (; c <= end; c++) {
-    c = eat_comment(c, end);
-    printf("%c", *c);
+
+  size_t size_increment = 1;
+  size_t size_array = 1;
+
+  GLfloat * array_floats = malloc(sizeof(GLfloat) * size_array);
+  if (array_floats == NULL) {
+    error("Could not allocate initial memory for float conversion.\n");
+    return NULL;
+  }
+
+  char * after_float = data;
+  GLfloat * p_float_current = array_floats;
+  char * current_c = c;
+
+  while (c < string_end) {
+    if ((size_t)(p_float_current - array_floats) >= size_array) {
+      /* Expand the float array. */
+      size_t size_new = size_array + size_increment;
+      GLfloat * array_expanded = realloc(array_floats, sizeof(GLfloat) *
+          size_new);
+      if (array_expanded == NULL) {
+        error("Could not expand array used for float conversion.\n");
+        free(array_floats);
+        free(data);
+        return NULL;
+      }
+      /* Re-calculate current pointer.*/
+      p_float_current = array_expanded + size_array;
+      /* Set expanded array as new array and update size. */
+      array_floats = array_expanded;
+      size_array = size_new;
+    }
+    /* Eat all encountered comments. */
+    while ((c = eat_comment(c, string_end)) != current_c) {
+      current_c = c;
+    }
+    *p_float_current++ = strtof(c, &after_float);
+    c = after_float;
+    /* Skip any 'f', ',' or white-space encountered. */
+    for(; *c == 'f' || *c == ',' || isspace(*c) ; c++){};
+    /* Avoid allocating new float on trailing comment in file. */
+    while ((c = eat_comment(c, string_end)) != current_c) {
+      current_c = c;
+    }
+  }
+  size_t num_parsed = p_float_current - array_floats;
+  /* Trim the returned array to fit number of parsed floats. */
+  GLfloat * array_trimmed = realloc(array_floats, sizeof(GLfloat) * num_parsed);
+  if (array_trimmed == NULL) {
+    error("Error when trying to trim converted floats to size.\n");
+    free(array_floats);
+    free(data);
+    return NULL;
+  }
+  /* Write size back to caller. */
+  if (num_floats != NULL) {
+    *num_floats = num_parsed;
   }
   free(data);
-  return 0;
+  return array_trimmed;
 }
 
 GLuint

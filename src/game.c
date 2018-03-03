@@ -17,7 +17,13 @@ int main(void)
       return EXIT_FAILURE;
     }
 
-    file_read_floats("includes/lib.h", NULL);
+    size_t num_floats = 0;
+    GLfloat * floats = file_read_floats("data/basic_triangle.txt",
+        &num_floats);
+    printf("Got %zu number of floats:\n", num_floats);
+    for (size_t i=0; i<num_floats; i++) {
+      printf("floats[%zu] = %f\n", i, floats[i]);
+    }
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -33,6 +39,7 @@ int main(void)
 
     }
 
+    free(floats);
     glfwTerminate();
     return EXIT_SUCCESS;
 }
