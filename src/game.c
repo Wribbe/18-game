@@ -20,10 +20,10 @@ int main(void)
     size_t num_floats = 0;
     GLfloat * floats = file_read_floats("data/basic_triangle.txt",
         &num_floats);
-    printf("Got %zu number of floats:\n", num_floats);
-    for (size_t i=0; i<num_floats; i++) {
-      printf("floats[%zu] = %f\n", i, floats[i]);
-    }
+
+    GLuint vao = buffer_create(floats, num_floats);
+    glBindVertexArray(vao);
+    glUseProgram(program_default);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -31,12 +31,14 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+        /* Draw triangle. */
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         /* Poll for and process events */
         event_queue_process();
 
+        /* Swap front and back buffers */
+        glfwSwapBuffers(window);
     }
 
     free(floats);

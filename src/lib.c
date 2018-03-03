@@ -303,3 +303,32 @@ error:
   glDeleteProgram(program_shader);
   return 0;
 }
+
+GLuint
+buffer_create(GLfloat * floats, size_t num_floats)
+{
+  /* Set up buffer variables. */
+  GLuint vao = 0;
+  GLuint vbo = 0;
+  /* Generate the array and buffer. */
+  glGenVertexArrays(1, &vao);
+  glGenBuffers(1, &vbo);
+  /* Bind vertex array. */
+  glBindVertexArray(vao);
+  /* Bind buffer. */
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  /* Add data to buffer. */
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*num_floats, floats,
+      GL_STATIC_DRAW);
+  /* Set up and enable vertex attribute pointer. */
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+      (void*)0);
+  glEnableVertexAttribArray(0);
+
+  /* Unbind vertex array. */
+  glBindVertexArray(0);
+  /* Unbind buffer. */
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  /* Return the id for the vertex array. */
+  return vao;
+}
