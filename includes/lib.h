@@ -46,6 +46,12 @@ struct key_status {
   bool change_to_process;
 };
 
+struct vao {
+  GLuint id;
+  size_t stride;
+  size_t num_indices;
+};
+
 /* External definitions.
  * --------------------- */
 
@@ -66,14 +72,17 @@ file_read_floats(const char * filepath, size_t * num_floats);
 GLuint
 shader_program_create(const char * path_vertex, const char * path_fragment);
 
+struct vao
+buffer_create(GLfloat * floats, size_t num_floats);
+
+void
+draw_arrays(GLenum type, struct vao * vao);
+
 /* handling_keys.c */
 void
 event_queue_process(void);
 
 void
 key_callback(GLFWwindow * window, int key, int scancode, int action, int mods);
-
-GLuint
-buffer_create(GLfloat * floats, size_t num_floats);
 
 #endif

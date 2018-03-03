@@ -1,23 +1,8 @@
-/* Some comments.
- * Bla bla bla.
-*/
-// Third line.
-// Third line.
-// Third line.
--0.5f, -0.5f,0.0f,
-// Second line.
-0.5f, -0.5f, 0.0f,
-// Third line.
-// Third line.
-// Third line.
-// Third line.
-// Third line.
-// Third line.
-// Third line.
-0.0f,  0.5f, 0.0f
-// Last line.
-/* Last multiline comment.
- *
- *
- * End of comment.
- */
+// First triangle.
+-0.5f -0.5f 0.0f
+ 0.5f -0.5f 0.0f
+-0.5f  0.5f 0.0f
+// Second triangle.
+-0.5f  0.5f 0.0f
+ 0.5f  0.5f 0.0f
+ 0.5f -0.5f 0.0f

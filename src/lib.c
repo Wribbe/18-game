@@ -304,19 +304,19 @@ error:
   return 0;
 }
 
-GLuint
+struct vao
 buffer_create(GLfloat * floats, size_t num_floats)
 {
   /* Set up buffer variables. */
-  GLuint vao = 0;
-  GLuint vbo = 0;
+  GLuint id_vao = 0;
+  GLuint id_vbo = 0;
   /* Generate the array and buffer. */
-  glGenVertexArrays(1, &vao);
-  glGenBuffers(1, &vbo);
+  glGenVertexArrays(1, &id_vao);
+  glGenBuffers(1, &id_vbo);
   /* Bind vertex array. */
-  glBindVertexArray(vao);
+  glBindVertexArray(id_vao);
   /* Bind buffer. */
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, id_vbo);
   /* Add data to buffer. */
   glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*num_floats, floats,
       GL_STATIC_DRAW);
@@ -329,6 +329,19 @@ buffer_create(GLfloat * floats, size_t num_floats)
   glBindVertexArray(0);
   /* Unbind buffer. */
   glBindBuffer(GL_ARRAY_BUFFER, 0);
-  /* Return the id for the vertex array. */
+  /* Create and return struct vao */
+  struct vao vao = {
+    .id = id_vao,
+    .num_indices = num_floats/3,
+    .stride = 3,
+  };
   return vao;
+}
+
+void
+draw_arrays(GLenum type, struct vao * vao)
+{
+  glBindVertexArray(vao->id);
+  glDrawArrays(type, 0, vao->num_indices);
+  glBindVertexArray(0);
 }
