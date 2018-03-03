@@ -34,16 +34,35 @@ int main(void)
     struct v3 camera_right = v3_cross(&direction_up, &camera_direction);
     camera_right = v3_normalize(&camera_right);
 
-    struct m4 transform = {{
+    struct m4 model = {{
+      {1.0f, 0.0f, 0.0f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {0.0f, 0.0f, 1.0f, 0.0f},
+      {0.0f, 0.0f, 0.0f, 1.0f},
+    }};
+    struct m4 view = {{
+      {1.0f, 0.0f, 0.0f, 0.0f},
+      {0.0f, 1.0f, 0.0f, 0.0f},
+      {0.0f, 0.0f, 1.0f, 0.0f},
+      {0.0f, 0.0f, 0.0f, 1.0f},
+    }};
+    struct m4 projection = {{
       {1.0f, 0.0f, 0.0f, 0.0f},
       {0.0f, 1.0f, 0.0f, 0.0f},
       {0.0f, 0.0f, 1.0f, 0.0f},
       {0.0f, 0.0f, 0.0f, 1.0f},
     }};
 
-    GLuint location_transform = glGetUniformLocation(program_default,
-        "transform");
-    glUniformMatrix4fv(location_transform, 1, GL_TRUE, transform.m[0]);
+    GLuint location_model = glGetUniformLocation(program_default,
+        "model");
+    GLuint location_view = glGetUniformLocation(program_default,
+        "view");
+    GLuint location_projection = glGetUniformLocation(program_default,
+        "projection");
+
+    glUniformMatrix4fv(location_model, 1, GL_TRUE, model.m[0]);
+    glUniformMatrix4fv(location_view, 1, GL_TRUE, view.m[0]);
+    glUniformMatrix4fv(location_projection, 1, GL_TRUE, projection.m[0]);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))

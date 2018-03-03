@@ -1,9 +1,11 @@
 #version 330 core
 layout (location = 0) in vec3 pos_vert;
 
-uniform mat4 transform;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {
-  gl_Position = transform * vec4(pos_vert, 1.0f);
+  gl_Position = projection * view * model * vec4(pos_vert, 1.0f);
 }
