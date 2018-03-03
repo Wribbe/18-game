@@ -24,14 +24,14 @@ int main(void)
     struct vao vao = buffer_create(floats, num_floats);
     glUseProgram(program_default);
 
-    v3 v3 = {1,2,3};
-    v4 v4 = {1,2,3,4};
-    m4 m4 = {
+    struct v3 v3 = {{{1,2,3}}};
+    struct v4 v4 = {{{1,2,3,4}}};
+    struct m4 m4 = {{
       {1, 0, 0, 0},
       {0, 1, 0, 0},
       {0, 0, 1, 0},
-      {0, 0, 0, 1},
-    };
+      {0, 0, 0, 1}
+    }};
 
     v3_print(&v3);
     v4_print(&v4);

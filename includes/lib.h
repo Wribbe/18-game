@@ -19,13 +19,6 @@
  * ------ */
 #define UNUSED(x) (void)x;
 
-/* Type-definitions
- * ---------------- */
-
-typedef GLfloat v3[3];
-typedef GLfloat v4[4];
-typedef GLfloat m4[4][4];
-
 /* Logging functions.
  * ------------------ */
 void
@@ -57,6 +50,29 @@ struct vao {
   GLuint id;
   size_t stride;
   size_t num_indices;
+};
+
+struct v3 {
+  union {
+    GLfloat a[3];
+    GLfloat x;
+    GLfloat y;
+    GLfloat z;
+  };
+};
+
+struct v4 {
+  union {
+    GLfloat a[4];
+    GLfloat x;
+    GLfloat y;
+    GLfloat z;
+    GLfloat w;
+  };
+};
+
+struct m4 {
+  GLfloat m[4][4];
 };
 
 /* External definitions.
@@ -95,13 +111,12 @@ key_callback(GLFWwindow * window, int key, int scancode, int action, int mods);
 /* maths.c */
 
 void
-v3_print(v3 * v3);
+v3_print(struct v3 * v3);
 
 void
-v4_print(v4 * v4);
+v4_print(struct v4 * v4);
 
 void
-m4_print(m4 * m4);
-
+m4_print(struct m4 * m4);
 
 #endif
