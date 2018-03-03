@@ -19,6 +19,13 @@
  * ------ */
 #define UNUSED(x) (void)x;
 
+/* Type-definitions
+ * ---------------- */
+
+typedef GLfloat v3[3];
+typedef GLfloat v4[4];
+typedef GLfloat m4[4][4];
+
 /* Logging functions.
  * ------------------ */
 void
@@ -84,5 +91,17 @@ event_queue_process(void);
 
 void
 key_callback(GLFWwindow * window, int key, int scancode, int action, int mods);
+
+/* maths.c */
+
+void
+v3_print(v3 * v3);
+
+void
+v4_print(v4 * v4);
+
+void
+m4_print(m4 * m4);
+
 
 #endif
