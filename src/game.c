@@ -24,22 +24,11 @@ int main(void)
     struct vao vao = buffer_create(floats, num_floats);
     glUseProgram(program_default);
 
-    struct v3 v3 = {{{1,2,3}}};
-    struct v3 v3_2 = {{{3,2,1}}};
-    struct v4 v4 = {{{1,2,3,4}}};
-    struct m4 m4 = {{
-      {1, 0, 0, 0},
-      {0, 1, 0, 0},
-      {0, 0, 1, 0},
-      {0, 0, 0, 1}
-    }};
+    struct v3 camera_position = {{{0.0f, 0.0f, 3.0f}}};
+    struct v3 camera_target = {{{0.0f, 0.0f, 0.0f}}};
 
-    v3_print(&v3);
-    v4_print(&v4);
-    m4_print(&m4);
-
-    struct v3 v3_3 = sub_v3v3(&v3, &v3_2);
-    v3_print(&v3_3);
+    struct v3 camera_direction = v3_sub_v3_norm(&camera_position,
+        &camera_target);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))

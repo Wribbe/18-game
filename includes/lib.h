@@ -106,6 +106,7 @@ void
 draw_arrays(GLenum type, struct vao * vao);
 
 /* handling_keys.c */
+
 void
 event_queue_process(void);
 
@@ -126,5 +127,10 @@ m4_print(struct m4 * m4);
 struct v3
 v3_sub_v3(struct v3 * v1, struct v3 * v2);
 
+struct v3
+v3_normalize(struct v3 * v3);
+
+struct v3
+v3_sub_v3_norm(struct v3 * v1, struct v3 * v2);
 
 #endif

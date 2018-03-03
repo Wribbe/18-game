@@ -48,3 +48,21 @@ v3_sub_v3(struct v3 * v1, struct v3 * v2)
     v1->z - v2->z,
   }}};
 }
+
+struct v3
+v3_normalize(struct v3 * v)
+{
+  size_t sum = abs(v->x)+abs(v->y)+abs(v->z);
+  return (struct v3){{{
+    v->x/sum,
+    v->y/sum,
+    v->z/sum,
+  }}};
+}
+
+struct v3
+v3_sub_v3_norm(struct v3 * v1, struct v3 * v2)
+{
+  struct v3 temp = v3_sub_v3(v1, v2);
+  return v3_normalize(&temp);
+}
