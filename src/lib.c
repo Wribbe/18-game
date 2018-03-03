@@ -102,8 +102,7 @@ eat_comment(char * c, char const * end)
     /* Multi-line comment. */
     if (next == '*') {
       /* Advance past the comment part first. */
-      c++; // At 'next'.
-      c++; // At char past 'next'.
+      c += 2;
       /* Keep on going until hitting end of comment or end. */
       for (;;c++) {
         if (c >= end) {
@@ -113,8 +112,7 @@ eat_comment(char * c, char const * end)
           next = *(c+1);
           if (next == '/') {
             /* Skip over the next char. */
-            c++;
-            c++;
+            c += 2;
             /* If the next char is a newline, skip that too. */
             if (*c == '\n') {
               c++;
@@ -126,8 +124,7 @@ eat_comment(char * c, char const * end)
     /* Single line comment. */
     } else if (next == '/') {
       /* Advance past comment part as previously. */
-      c++; // At 'next'.
-      c++; // One character past 'next'.
+      c += 2;
       /* Keep on going until end is hit or there is a newline. */
       for (; *c != '\n' && c <= end; c++){};
       /* Skip the actual newline character if end was not hit. */
