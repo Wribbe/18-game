@@ -40,10 +40,8 @@ m4_print(struct m4 * m4)
 }
 
 struct v3
-sub_v3v3(struct v3 * v1, struct v3 * v2)
+v3_sub_v3(struct v3 * v1, struct v3 * v2)
 {
-  v3_print(v1);
-  v3_print(v2);
   return (struct v3){{{
     v1->x - v2->x,
     v1->y - v2->y,

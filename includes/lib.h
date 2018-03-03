@@ -124,7 +124,7 @@ void
 m4_print(struct m4 * m4);
 
 struct v3
-sub_v3v3(struct v3 * v1, struct v3 * v2);
+v3_sub_v3(struct v3 * v1, struct v3 * v2);
 
 
 #endif
