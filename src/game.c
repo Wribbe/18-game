@@ -25,6 +25,7 @@ int main(void)
     glUseProgram(program_default);
 
     struct v3 v3 = {{{1,2,3}}};
+    struct v3 v3_2 = {{{3,2,1}}};
     struct v4 v4 = {{{1,2,3,4}}};
     struct m4 m4 = {{
       {1, 0, 0, 0},
@@ -36,6 +37,9 @@ int main(void)
     v3_print(&v3);
     v4_print(&v4);
     m4_print(&m4);
+
+    struct v3 v3_3 = sub_v3v3(&v3, &v3_2);
+    v3_print(&v3_3);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))

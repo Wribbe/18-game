@@ -55,19 +55,23 @@ struct vao {
 struct v3 {
   union {
     GLfloat a[3];
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
+    struct {
+      GLfloat x;
+      GLfloat y;
+      GLfloat z;
+    };
   };
 };
 
 struct v4 {
   union {
     GLfloat a[4];
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
-    GLfloat w;
+    struct {
+      GLfloat x;
+      GLfloat y;
+      GLfloat z;
+      GLfloat w;
+    };
   };
 };
 
@@ -118,5 +122,9 @@ v4_print(struct v4 * v4);
 
 void
 m4_print(struct m4 * m4);
+
+struct v3
+sub_v3v3(struct v3 * v1, struct v3 * v2);
+
 
 #endif
