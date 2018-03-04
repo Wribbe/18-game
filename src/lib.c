@@ -1,4 +1,8 @@
 #include "lib.h"
+/* External definitions
+ * -------------------- */
+
+GLuint current_shader_program = 0;
 
 /* Information output functions.
  * ----------------------------- */
@@ -58,6 +62,10 @@ init_window(size_t width, size_t height, const char * title)
 
     glfwSetKeyCallback(window, key_callback);
     current_window = window;
+
+    /* Initialize camera system. */
+    camera_system_init();
+
     return window;
 }
 
@@ -344,4 +352,18 @@ draw_arrays(GLenum type, struct vao * vao)
   glBindVertexArray(vao->id);
   glDrawArrays(type, 0, vao->num_indices);
   glBindVertexArray(0);
+}
+
+void
+program_shader_use(GLuint id_program)
+{
+  current_shader_program = id_program;
+  glUseProgram(id_program);
+}
+
+void
+program_bind_mat4fv(GLuint id_program, const char * uniform, struct m4 * data)
+{
+    GLuint location = glGetUniformLocation(id_program, uniform);
+    glUniformMatrix4fv(location, 1, GL_TRUE, data->m[0]);
 }

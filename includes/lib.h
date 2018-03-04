@@ -89,6 +89,8 @@ struct m4 {
  * --------------------- */
 
 extern GLFWwindow * current_window;
+extern GLuint current_shader_program;
+extern struct m4 m4_mvp;
 
 /* Lib functions.
  * -------------- */
@@ -111,13 +113,23 @@ buffer_create(GLfloat * floats, size_t num_floats);
 void
 draw_arrays(GLenum type, struct vao * vao);
 
-/* handling_keys.c */
+void
+program_shader_use(GLuint id_program);
+
+void
+program_bind_mat4fv(GLuint id_program, const char * uniform, struct m4 * data);
+
+
+/* input_and_camera.c */
 
 void
 event_queue_process(void);
 
 void
 key_callback(GLFWwindow * window, int key, int scancode, int action, int mods);
+
+void
+camera_system_init(void);
 
 /* maths.c */
 
