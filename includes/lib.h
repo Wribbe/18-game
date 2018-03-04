@@ -149,6 +149,6 @@ struct m4
 m4_mul(struct m4 * m1, struct m4 * m2);
 
 struct m4
-m4_mvp(struct m4 * m1, struct m4 * m2, struct m4 * m3);
+m4_mul3(struct m4 * m1, struct m4 * m2, struct m4 * m3);
 
 #endif
