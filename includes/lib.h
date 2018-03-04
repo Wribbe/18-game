@@ -114,7 +114,7 @@ void
 draw_arrays(GLenum type, struct vao * vao);
 
 void
-program_shader_use(GLuint id_program);
+program_use(GLuint id_program);
 
 void
 program_bind_mat4fv(GLuint id_program, const char * uniform, struct m4 * data);

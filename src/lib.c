@@ -355,7 +355,7 @@ draw_arrays(GLenum type, struct vao * vao)
 }
 
 void
-program_shader_use(GLuint id_program)
+program_use(GLuint id_program)
 {
   current_shader_program = id_program;
   glUseProgram(id_program);

@@ -22,7 +22,7 @@ int main(void)
         &num_floats);
 
     struct vao vao = buffer_create(floats, num_floats);
-    program_shader_use(program_default);
+    program_use(program_default);
     program_bind_mat4fv(program_default, "mvp", &m4_mvp);
 
     /* Loop until the user closes the window */
