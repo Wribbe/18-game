@@ -43,15 +43,11 @@ int main(void)
     struct m4 view = {{
       {1.0f, 0.0f, 0.0f, 0.0f},
       {0.0f, 1.0f, 0.0f, 0.0f},
-      {0.0f, 0.0f, 1.0f, 0.0f},
+      {0.0f, 0.0f, 1.0f,-3.0f},
       {0.0f, 0.0f, 0.0f, 1.0f},
     }};
-    struct m4 projection = {{
-      {1.0f, 0.0f, 0.0f, 0.0f},
-      {0.0f, 1.0f, 0.0f, 0.0f},
-      {0.0f, 0.0f, 1.0f, 0.0f},
-      {0.0f, 0.0f, 0.0f, 1.0f},
-    }};
+
+    struct m4 projection = m4_perspective(M_PI/2, 1000.0f/600.0f, 0.1f, 100.0f);
 
     GLuint location_model = glGetUniformLocation(program_default,
         "model");

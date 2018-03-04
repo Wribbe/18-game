@@ -69,3 +69,50 @@ v3_cross(struct v3 * a, struct v3 * b)
     a->x*b->y - a->y*b->x,
   }}};
 }
+
+struct v4
+m4_mul_v4(struct m4 * m, struct v4 * v)
+{
+  struct v4 r = {0};
+  for (size_t i = 0; i<4; i++) {
+    for (size_t j = 0; j<4; j++) {
+      r.a[i] += m->m[i][j] * v->a[j];
+    }
+  }
+  return r;
+}
+
+struct m4
+m4_perspective(GLfloat fov_y, GLfloat aspect, GLfloat near, GLfloat far)
+{
+  struct m4 ret = {0};
+  GLfloat a = 1.0f/tanf(fov_y/2.0f);
+
+  ret.m[0][0] = a/aspect;
+  ret.m[1][1] = a;
+  ret.m[2][2] = -(far + near)/(far-near);
+  ret.m[2][3] = (-2*far*near)/(far-near);
+  ret.m[3][2] = -1;
+  return ret;
+}
+
+struct m4
+m4_mul(struct m4 * m1, struct m4 * m2)
+{
+  struct m4 r = {0};
+  for (size_t i = 0; i<4; i++) {
+    for (size_t j = 0; j<4; j++) {
+      for (size_t k = 0; k<4; k++) {
+        r.m[i][j] += m1->m[i][k] * m2->m[k][j];
+      }
+    }
+  }
+  return r;
+}
+
+struct m4
+m4_mvp(struct m4 * m1, struct m4 * m2, struct m4 * m3)
+{
+  struct m4 temp = m4_mul(m2, m3);
+  return m4_mul(m1, &temp);
+}

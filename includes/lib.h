@@ -8,12 +8,18 @@
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
+/* Definitions
+ * ----------- */
+
 #define NUM_KEYS_DOWN 512
 #define SIZE_EVENT_QUEUE 512
+
+#define M_PI 3.14159265358979323846
 
 /* Macros
  * ------ */
@@ -132,5 +138,17 @@ v3_normalize(struct v3 * v3);
 
 struct v3
 v3_cross(struct v3 * a, struct v3 * b);
+
+struct v4
+m4_mul_v4(struct m4 * m, struct v4 * v);
+
+struct m4
+m4_perspective(GLfloat fov_y, GLfloat aspect, GLfloat near, GLfloat far);
+
+struct m4
+m4_mul(struct m4 * m1, struct m4 * m2);
+
+struct m4
+m4_mvp(struct m4 * m1, struct m4 * m2, struct m4 * m3);
 
 #endif
