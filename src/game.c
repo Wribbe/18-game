@@ -34,17 +34,17 @@ int main(void)
       /* Set time-delta. */
       clock_tick();
 
-        /* Clear color. */
-        glClear(GL_COLOR_BUFFER_BIT);
+      /* Clear color. */
+      glClear(GL_COLOR_BUFFER_BIT);
 
-        /* Draw triangle. */
-        draw_arrays(GL_TRIANGLES, &vao);
+      /* Draw triangle. */
+      draw_arrays(GL_TRIANGLES, &vao);
 
-        /* Poll for and process events */
-        event_queue_process();
+      /* Poll for and process events. */
+      event_queue_process();
 
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+      /* Swap front and back buffers. */
+      glfwSwapBuffers(window);
     }
 
     free(floats);
