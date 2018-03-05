@@ -28,6 +28,9 @@ struct m4 m4_view;
 struct m4 m4_projection;
 struct m4 m4_mvp;
 
+/* Global time variables. */
+double time_prev = 0;
+double time_delta = 0;
 
 /* Key status functions.
  * --------------------- */
@@ -163,4 +166,22 @@ camera_system_init(void)
 
   m4_projection = m4_perspective(M_PI/2, 1000.0f/600.0f, 0.1f, 100.0f);
   m4_mvp = m4_mul3(&m4_projection, &m4_view, &m4_model);
+}
+
+/* Timing related functions.
+ * ------------------------- */
+
+void
+clock_init(void)
+{
+  time_prev = glfwGetTime();
+}
+
+void
+clock_tick(void)
+{
+  double time_current = glfwGetTime();
+  time_delta = time_current-time_prev;
+  time_prev = time_current;
+  info("Current time delta: %f\n", time_delta);
 }

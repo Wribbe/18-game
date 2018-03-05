@@ -63,10 +63,18 @@ init_window(size_t width, size_t height, const char * title)
     glfwSetKeyCallback(window, key_callback);
     current_window = window;
 
+
+    return window;
+}
+
+void
+init_environment(void)
+{
     /* Initialize camera system. */
     camera_system_init();
 
-    return window;
+    /* Initialize time delta clock. */
+    clock_init();
 }
 
 char *

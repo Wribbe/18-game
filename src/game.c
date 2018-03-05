@@ -9,6 +9,9 @@ int main(void)
       return EXIT_FAILURE;
     }
 
+    /* Initialize sub-systems. */
+    init_environment();
+
     GLuint program_default = shader_program_create(
         "src/shaders/default.vert",
         "src/shaders/default.frag");
@@ -28,7 +31,10 @@ int main(void)
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
-        /* Render here */
+      /* Set time-delta. */
+      clock_tick();
+
+        /* Clear color. */
         glClear(GL_COLOR_BUFFER_BIT);
 
         /* Draw triangle. */

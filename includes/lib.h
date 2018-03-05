@@ -91,6 +91,7 @@ struct m4 {
 extern GLFWwindow * current_window;
 extern GLuint current_shader_program;
 extern struct m4 m4_mvp;
+extern double time_delta;
 
 /* Lib functions.
  * -------------- */
@@ -119,6 +120,8 @@ program_use(GLuint id_program);
 void
 program_bind_mat4fv(GLuint id_program, const char * uniform, struct m4 * data);
 
+void
+init_environment(void);
 
 /* input_and_camera.c */
 
@@ -130,6 +133,12 @@ key_callback(GLFWwindow * window, int key, int scancode, int action, int mods);
 
 void
 camera_system_init(void);
+
+void
+clock_init(void);
+
+void
+clock_tick(void);
 
 /* maths.c */
 
