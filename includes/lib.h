@@ -18,8 +18,8 @@
 
 #define NUM_KEYS_DOWN 512
 #define SIZE_EVENT_QUEUE 512
-
 #define M_PI 3.14159265358979323846
+#define UNIFORM_NAME_MVP "mvp"
 
 /* Macros
  * ------ */
@@ -140,6 +140,9 @@ clock_init(void);
 void
 clock_tick(void);
 
+struct v3
+camera_forward(void);
+
 /* maths.c */
 
 void
@@ -153,6 +156,15 @@ m4_print(struct m4 * m4);
 
 struct v3
 v3_sub(struct v3 * v1, struct v3 * v2);
+
+struct v3
+v3_add(struct v3 * v1, struct v3 * v2);
+
+struct v3
+v3_mul(struct v3 * v1, struct v3 * v2);
+
+struct v3
+v3_mulf(float f, struct v3 * v);
 
 struct v3
 v3_normalize(struct v3 * v3);

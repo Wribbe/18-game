@@ -28,6 +28,8 @@ struct m4 m4_view;
 struct m4 m4_projection;
 struct m4 m4_mvp;
 
+GLfloat camera_speed = 1.5f;
+
 /* Global time variables. */
 double time_prev = 0;
 double time_delta = 0;
@@ -60,6 +62,80 @@ bool
 key_down_single(int key)
 {
   return key_down(key) && key_not_processed(key);
+}
+
+/* Camera functions.
+ * ----------------- */
+
+void
+m4_mvp_calculate(void)
+{
+  m4_mvp = m4_mul3(&m4_projection, &m4_view, &m4_model);
+  program_bind_mat4fv(current_shader_program, UNIFORM_NAME_MVP, &m4_mvp);
+}
+
+void
+camera_system_init(void)
+{
+  camera_position = (struct v3){{{0.0f, 0.0f, -3.0f}}};
+  camera_target = (struct v3){{{0.0f, 0.0f, 0.0f}}};
+  direction_up = (struct v3){{{0.0f, 1.0f, 0.0f}}};
+
+  camera_direction = v3_sub(&camera_position, &camera_target);
+  camera_direction = v3_normalize(&camera_direction);
+
+  camera_right = v3_cross(&direction_up, &camera_direction);
+  camera_right = v3_normalize(&camera_right);
+
+  m4_model = (struct m4){{
+    {1.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 1.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 1.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+  }};
+  m4_view = (struct m4){{
+    {1.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 1.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 1.0f,-3.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+  }};
+
+  m4_projection = m4_perspective(M_PI/2, 1000.0f/600.0f, 0.1f, 100.0f);
+  m4_mvp_calculate();
+}
+
+struct v3
+camera_forward(void)
+{
+  struct v3 camera_front = {{{0.0f, 0.0f, 1.0f}}};
+  double camera_speed_delta = camera_speed * time_delta;
+  struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_front);
+  return v3_add(&camera_position, &camera_move);
+}
+
+void
+camera_position_propagate(void)
+{
+  m4_view.m[0][3] = camera_position.x;
+  m4_view.m[1][3] = camera_position.y;
+  m4_view.m[2][3] = camera_position.z;
+}
+
+/* Timing related functions.
+ * ------------------------- */
+
+void
+clock_init(void)
+{
+  time_prev = glfwGetTime();
+}
+
+void
+clock_tick(void)
+{
+  double time_current = glfwGetTime();
+  time_delta = time_current-time_prev;
+  time_prev = time_current;
 }
 
 /* Event queue functions.
@@ -98,10 +174,13 @@ event_evalute_bindings(void)
     printf("RELEASED SPACE!\n");
   }
   if (key_down_single(GLFW_KEY_SPACE)) {
-    printf("SPACE PRESSED!\n");
+    printf("PRESSED SPACE!\n");
   }
   if (key_down(GLFW_KEY_SPACE)) {
     printf("SPAAAAACE!\n");
+    camera_position = camera_forward();
+    camera_position_propagate();
+    m4_mvp_calculate();
   }
 }
 
@@ -133,55 +212,4 @@ key_callback(GLFWwindow * window, int key, int scancode, int action, int mods)
     return;
   }
   event_queue_add(key, action == GLFW_PRESS ? true : false);
-}
-
-/* Camera functions.
- * ----------------- */
-
-void
-camera_system_init(void)
-{
-  camera_position = (struct v3){{{0.0f, 0.0f, 3.0f}}};
-  camera_target = (struct v3){{{0.0f, 0.0f, 0.0f}}};
-  direction_up = (struct v3){{{0.0f, 1.0f, 0.0f}}};
-
-  camera_direction = v3_sub(&camera_position, &camera_target);
-  camera_direction = v3_normalize(&camera_direction);
-
-  camera_right = v3_cross(&direction_up, &camera_direction);
-  camera_right = v3_normalize(&camera_right);
-
-  m4_model = (struct m4){{
-    {1.0f, 0.0f, 0.0f, 1.0f},
-    {0.0f, 1.0f, 0.0f, 1.0f},
-    {0.0f, 0.0f, 1.0f, 0.0f},
-    {0.0f, 0.0f, 0.0f, 1.0f},
-  }};
-  m4_view = (struct m4){{
-    {1.0f, 0.0f, 0.0f, 0.0f},
-    {0.0f, 1.0f, 0.0f, 0.0f},
-    {0.0f, 0.0f, 1.0f,-3.0f},
-    {0.0f, 0.0f, 0.0f, 1.0f},
-  }};
-
-  m4_projection = m4_perspective(M_PI/2, 1000.0f/600.0f, 0.1f, 100.0f);
-  m4_mvp = m4_mul3(&m4_projection, &m4_view, &m4_model);
-}
-
-/* Timing related functions.
- * ------------------------- */
-
-void
-clock_init(void)
-{
-  time_prev = glfwGetTime();
-}
-
-void
-clock_tick(void)
-{
-  double time_current = glfwGetTime();
-  time_delta = time_current-time_prev;
-  time_prev = time_current;
-  info("Current time delta: %f\n", time_delta);
 }
