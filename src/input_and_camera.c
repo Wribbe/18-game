@@ -14,19 +14,19 @@ struct event_queue * event_queue = &struct_event_queue;
 GLFWwindow * current_window = NULL;
 
 /* Set-up globals for camera positions and transformation matrices. */
-struct v3 camera_position;
-struct v3 camera_target;
 struct v3 direction_up;
 
+struct v3 camera_position;
+struct v3 camera_target;
 struct v3 camera_direction;
-
+struct v3 camera_front;
 struct v3 camera_right;
 
 struct m4 m4_model;
 struct m4 m4_view;
-
 struct m4 m4_projection;
 struct m4 m4_mvp;
+
 
 GLfloat camera_speed = 1.5f;
 
@@ -87,6 +87,8 @@ camera_system_init(void)
   camera_right = v3_cross(&direction_up, &camera_direction);
   camera_right = v3_normalize(&camera_right);
 
+  camera_front = (struct v3){{{0.0f, 0.0f, 1.0f}}};
+
   m4_model = (struct m4){{
     {1.0f, 0.0f, 0.0f, 1.0f},
     {0.0f, 1.0f, 0.0f, 1.0f},
@@ -107,10 +109,17 @@ camera_system_init(void)
 struct v3
 camera_forward(void)
 {
-  struct v3 camera_front = {{{0.0f, 0.0f, 1.0f}}};
   double camera_speed_delta = camera_speed * time_delta;
   struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_front);
   return v3_add(&camera_position, &camera_move);
+}
+
+struct v3
+camera_backwards(void)
+{
+  double camera_speed_delta = camera_speed * time_delta;
+  struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_front);
+  return v3_sub(&camera_position, &camera_move);
 }
 
 void
@@ -177,10 +186,17 @@ event_evalute_bindings(void)
     printf("PRESSED SPACE!\n");
   }
   if (key_down(GLFW_KEY_SPACE)) {
-    printf("SPAAAAACE!\n");
-    camera_position = camera_forward();
-    camera_position_propagate();
-    m4_mvp_calculate();
+    if (key_down(GLFW_KEY_LEFT_SHIFT)) {
+      printf("SHIFT SPAAAAACE!\n");
+      camera_position = camera_backwards();
+      camera_position_propagate();
+      m4_mvp_calculate();
+    } else {
+      printf("SPAAAAACE!\n");
+      camera_position = camera_forward();
+      camera_position_propagate();
+      m4_mvp_calculate();
+    }
   }
 }
 

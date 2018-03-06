@@ -167,10 +167,14 @@ struct v3
 v3_mulf(float f, struct v3 * v);
 
 struct v3
-v3_normalize(struct v3 * v3);
+v3_normalize(struct v3 * v);
+
+struct v3
+v3_invert(struct v3 * v);
 
 struct v3
 v3_cross(struct v3 * a, struct v3 * b);
+
 
 struct v4
 m4_mul_v4(struct m4 * m, struct v4 * v);

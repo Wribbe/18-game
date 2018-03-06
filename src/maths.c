@@ -80,6 +80,16 @@ v3_mulf(float f, struct v3 * v)
 }
 
 struct v3
+v3_invert(struct v3 * v)
+{
+  return (struct v3){{{
+    v->x *= -1,
+    v->y *= -1,
+    v->z *= -1,
+  }}};
+}
+
+struct v3
 v3_normalize(struct v3 * v)
 {
   size_t sum = abs(v->x)+abs(v->y)+abs(v->z);
