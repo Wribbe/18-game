@@ -73,9 +73,9 @@ struct v3
 v3_mulf(float f, struct v3 * v)
 {
   return (struct v3){{{
-    v->x *= f,
-    v->y *= f,
-    v->z *= f,
+    v->x * f,
+    v->y * f,
+    v->z * f,
   }}};
 }
 
@@ -83,9 +83,9 @@ struct v3
 v3_invert(struct v3 * v)
 {
   return (struct v3){{{
-    v->x *= -1,
-    v->y *= -1,
-    v->z *= -1,
+    v->x * -1,
+    v->y * -1,
+    v->z * -1,
   }}};
 }
 
