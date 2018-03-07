@@ -14,7 +14,7 @@ struct event_queue * event_queue = &struct_event_queue;
 GLFWwindow * current_window = NULL;
 
 /* Set-up globals for camera positions and transformation matrices. */
-struct v3 direction_up;
+struct v3 camera_up;
 
 struct v3 camera_position;
 struct v3 camera_target;
@@ -79,35 +79,45 @@ m4_mvp_calculate(void)
 }
 
 void
-camera_system_init(void)
+camera_look_at(struct v3 * target)
 {
-  camera_position = (struct v3){{{0.0f, 0.0f, -3.0f}}};
-  camera_target = (struct v3){{{0.0f, 0.0f, 0.0f}}};
-  direction_up = (struct v3){{{0.0f, 1.0f, 0.0f}}};
+  b_camera_changed = true;
+  /* Calculate new direction-vector. */
+  struct v3 d = v3_sub(&camera_position, target);
+  d = v3_normalize(&d);
+  /* Calculate new right-vector. */
+  struct v3 r = v3_cross(&d, &camera_up);
+  r = v3_normalize(&r);
 
-  camera_direction = v3_sub(&camera_position, &camera_target);
-  camera_direction = v3_normalize(&camera_direction);
+  /* Calculate new up-vector. */
+  struct v3 u = v3_cross(&r, &d);
 
-  camera_right = v3_cross(&direction_up, &camera_direction);
-  camera_right = v3_normalize(&camera_right);
-
-  camera_front = (struct v3){{{0.0f, 0.0f, 1.0f}}};
-
-  m4_model = (struct m4){{
-    {1.0f, 0.0f, 0.0f, 1.0f},
-    {0.0f, 1.0f, 0.0f, 1.0f},
-    {0.0f, 0.0f, 1.0f, 0.0f},
-    {0.0f, 0.0f, 0.0f, 1.0f},
-  }};
+  /* Update the view matrix.
+   *
+   *  Note: Calculation of the direction vector results in a vector that points
+   *  in the wrong direction:
+   *
+   *  direction-vector | (target - camera)
+   *                   v
+   *        [target] .<---. >[] [camera]
+   *                 |   /
+   *                 |  /
+   *                 | /
+   *                 |/
+   *                 x [origo]
+   *
+   * */
   m4_view = (struct m4){{
-    {1.0f, 0.0f, 0.0f, 0.0f},
-    {0.0f, 1.0f, 0.0f, 0.0f},
-    {0.0f, 0.0f, 1.0f,-3.0f},
-    {0.0f, 0.0f, 0.0f, 1.0f},
+    { r.x,  r.y,  r.z, -v3_dot(&r, &camera_position)},
+    { u.x,  u.y,  u.z, -v3_dot(&u, &camera_position)},
+    { d.x,  d.y,  d.z,  v3_dot(&d, &camera_position)},
+    {   0,    0,    0,  1},
   }};
 
-  m4_projection = m4_perspective(M_PI/2, 1000.0f/600.0f, 0.1f, 100.0f);
-  m4_mvp_calculate();
+  /* Update new camera vectors. */
+  camera_direction = v3_invert(&d);
+  camera_up = u;
+  camera_right = r;
 }
 
 struct v3
@@ -129,8 +139,28 @@ camera_backwards(void)
 }
 
 void
-camera_look_at(struct v3 * target)
+camera_system_init(void)
 {
+  camera_position = (struct v3){{{0.0f, 0.0f, -3.0f}}};
+  camera_target = (struct v3){{{0.0f, 0.0f, 0.0f}}};
+  camera_up = (struct v3){{{0.0f, 1.0f, 0.0f}}};
+
+  camera_direction = v3_sub(&camera_position, &camera_target);
+  camera_direction = v3_normalize(&camera_direction);
+
+  camera_right = v3_cross(&camera_up, &camera_direction);
+  camera_right = v3_normalize(&camera_right);
+
+  camera_front = (struct v3){{{0.0f, 0.0f, 1.0f}}};
+
+  m4_model = m4_identity();
+  m4_model.m[0][3] = -2;
+  m4_view = m4_identity();
+
+  m4_projection = m4_perspective(M_PI/2, 1000.0f/600.0f, 0.1f, 100.0f);
+  m4_mvp_calculate();
+
+  camera_look_at(&camera_target);
 }
 
 void
@@ -191,17 +221,13 @@ event_evalute_bindings(void)
     }
   }
   if (key_up_single(GLFW_KEY_SPACE)) {
-    printf("RELEASED SPACE!\n");
   }
   if (key_down_single(GLFW_KEY_SPACE)) {
-    printf("PRESSED SPACE!\n");
   }
   if (key_down(GLFW_KEY_SPACE)) {
     if (key_down(GLFW_KEY_LEFT_SHIFT)) {
-      printf("SHIFT SPAAAAACE!\n");
       camera_position = camera_backwards();
     } else {
-      printf("SPAAAAACE!\n");
       camera_position = camera_forward();
     }
   }

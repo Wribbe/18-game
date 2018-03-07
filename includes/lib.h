@@ -163,6 +163,9 @@ v3_add(struct v3 * v1, struct v3 * v2);
 struct v3
 v3_mul(struct v3 * v1, struct v3 * v2);
 
+GLfloat
+v3_dot(struct v3 * v1, struct v3 * v2);
+
 struct v3
 v3_mulf(float f, struct v3 * v);
 
@@ -186,5 +189,8 @@ m4_mul(struct m4 * m1, struct m4 * m2);
 
 struct m4
 m4_mul3(struct m4 * m1, struct m4 * m2, struct m4 * m3);
+
+struct m4
+m4_identity(void);
 
 #endif

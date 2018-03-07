@@ -69,6 +69,12 @@ v3_mul(struct v3 * v1, struct v3 * v2)
   }}};
 }
 
+GLfloat
+v3_dot(struct v3 * v1, struct v3 * v2)
+{
+  return v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
+}
+
 struct v3
 v3_mulf(float f, struct v3 * v)
 {
@@ -150,9 +156,22 @@ m4_mul(struct m4 * m1, struct m4 * m2)
   return r;
 }
 
+// P V M
 struct m4
 m4_mul3(struct m4 * m1, struct m4 * m2, struct m4 * m3)
 {
   struct m4 temp = m4_mul(m2, m3);
-  return m4_mul(m1, &temp);
+  struct m4 ret = m4_mul(m1, &temp);
+  return ret;
+}
+
+struct m4
+m4_identity(void)
+{
+  return (struct m4){{
+    {1.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 1.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 1.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+  }};
 }
