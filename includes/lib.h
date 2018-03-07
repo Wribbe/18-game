@@ -129,7 +129,10 @@ void
 event_queue_process(void);
 
 void
-key_callback(GLFWwindow * window, int key, int scancode, int action, int mods);
+callback_key(GLFWwindow * window, int key, int scancode, int action, int mods);
+
+void
+callback_mouse_position(GLFWwindow * window, double pos_x, double pos_y);
 
 void
 camera_system_init(void);
@@ -139,9 +142,6 @@ clock_init(void);
 
 void
 clock_tick(void);
-
-struct v3
-camera_forward(void);
 
 /* maths.c */
 

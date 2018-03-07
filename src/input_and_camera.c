@@ -27,12 +27,12 @@ struct m4 m4_view;
 struct m4 m4_projection;
 struct m4 m4_mvp;
 
-
+/* Global numerical values. */
 GLfloat camera_speed = 1.5f;
-
-/* Global time variables. */
 double time_prev = 0;
 double time_delta = 0;
+double mouse_x = 0;
+double mouse_y = 0;
 
 /* Key status functions.
  * --------------------- */
@@ -215,17 +215,26 @@ event_queue_process(void)
   event_queue->current = event_queue->queue;
   /* Execute all matching key-bindings. */
   event_evalute_bindings();
+  info("Current mouse position: %f : %f\n", mouse_x, mouse_y);
 }
 
-/* GLFW key-callback function.
- * --------------------------- */
+/* GLFW key-callback functions.
+ * ---------------------------- */
 
 void
-key_callback(GLFWwindow * window, int key, int scancode, int action, int mods)
+callback_key(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
   UNUSED(window); UNUSED(scancode); UNUSED(mods);
   if (action == GLFW_REPEAT) {
     return;
   }
   event_queue_add(key, action == GLFW_PRESS ? true : false);
+}
+
+void
+callback_mouse_position(GLFWwindow * window, double pos_x, double pos_y)
+{
+  UNUSED(window);
+  mouse_x = pos_x;
+  mouse_y = pos_y;
 }

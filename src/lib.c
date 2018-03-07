@@ -60,7 +60,8 @@ init_window(size_t width, size_t height, const char * title)
     info("OpenGL %s, GLSL %s\n", glGetString(GL_VERSION),
         glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-    glfwSetKeyCallback(window, key_callback);
+    glfwSetKeyCallback(window, callback_key);
+		glfwSetCursorPosCallback(window, callback_mouse_position);
     current_window = window;
 
 
