@@ -34,6 +34,9 @@ double time_delta = 0;
 double mouse_x = 0;
 double mouse_y = 0;
 
+bool recaluculate_mvp = false;
+bool camera_changed = false;
+
 /* Key status functions.
  * --------------------- */
 bool
@@ -111,6 +114,7 @@ camera_forward(void)
 {
   double camera_speed_delta = camera_speed * time_delta;
   struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_front);
+  camera_changed = true;
   return v3_add(&camera_position, &camera_move);
 }
 
@@ -119,7 +123,13 @@ camera_backwards(void)
 {
   double camera_speed_delta = camera_speed * time_delta;
   struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_front);
+  camera_changed = true;
   return v3_sub(&camera_position, &camera_move);
+}
+
+void
+camera_look_at(struct v3 * target)
+{
 }
 
 void
@@ -189,15 +199,18 @@ event_evalute_bindings(void)
     if (key_down(GLFW_KEY_LEFT_SHIFT)) {
       printf("SHIFT SPAAAAACE!\n");
       camera_position = camera_backwards();
-      camera_position_propagate();
-      m4_mvp_calculate();
     } else {
       printf("SPAAAAACE!\n");
       camera_position = camera_forward();
-      camera_position_propagate();
-      m4_mvp_calculate();
     }
   }
+}
+
+void
+globals_event_reset(void)
+{
+  recaluculate_mvp = false;
+  camera_changed = false;
 }
 
 void
@@ -215,7 +228,16 @@ event_queue_process(void)
   event_queue->current = event_queue->queue;
   /* Execute all matching key-bindings. */
   event_evalute_bindings();
-  info("Current mouse position: %f : %f\n", mouse_x, mouse_y);
+  /* Anything needs recalculating? */
+  if (camera_changed) {
+    camera_position_propagate();
+    recaluculate_mvp = true;
+  }
+  if (recaluculate_mvp) {
+    m4_mvp_calculate();
+  }
+  /* Reset all event globals. */
+  globals_event_reset();
 }
 
 /* GLFW key-callback functions.
