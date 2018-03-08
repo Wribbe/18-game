@@ -92,6 +92,7 @@ extern GLFWwindow * current_window;
 extern GLuint current_shader_program;
 extern struct m4 m4_mvp;
 extern double time_delta;
+extern GLfloat zero_cuttof_min;
 
 /* Lib functions.
  * -------------- */
@@ -132,7 +133,7 @@ void
 callback_key(GLFWwindow * window, int key, int scancode, int action, int mods);
 
 void
-callback_mouse_position(GLFWwindow * window, double pos_x, double pos_y);
+callback_cursor_position(GLFWwindow * window, double pos_x, double pos_y);
 
 void
 camera_system_init(void);
@@ -144,6 +145,9 @@ void
 clock_tick(void);
 
 /* maths.c */
+
+GLfloat
+zero_cutoff(GLfloat f);
 
 void
 v3_print(struct v3 * v3);

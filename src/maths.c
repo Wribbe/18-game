@@ -1,5 +1,16 @@
 #include "lib.h"
 
+GLfloat zero_cutoff_min = 1e-2;
+
+GLfloat
+zero_cutoff(GLfloat f)
+{
+  if (f < zero_cutoff_min) {
+    return 0;
+  }
+  return f;
+}
+
 void
 v3_print(struct v3 * v3)
 {
@@ -98,11 +109,11 @@ v3_invert(struct v3 * v)
 struct v3
 v3_normalize(struct v3 * v)
 {
-  size_t sum = abs(v->x)+abs(v->y)+abs(v->z);
+  GLfloat norm = sqrtf(powf(v->x, 2)+powf(v->y, 2)+powf(v->z, 2));
   return (struct v3){{{
-    v->x/sum,
-    v->y/sum,
-    v->z/sum,
+    v->x/norm,
+    v->y/norm,
+    v->z/norm,
   }}};
 }
 
@@ -156,7 +167,6 @@ m4_mul(struct m4 * m1, struct m4 * m2)
   return r;
 }
 
-// P V M
 struct m4
 m4_mul3(struct m4 * m1, struct m4 * m2, struct m4 * m3)
 {

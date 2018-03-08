@@ -15,6 +15,7 @@ GLFWwindow * current_window = NULL;
 
 /* Set-up globals for camera positions and transformation matrices. */
 struct v3 camera_up;
+struct v3 direction_global_up;
 
 struct v3 camera_position;
 struct v3 camera_target;
@@ -27,16 +28,25 @@ struct m4 m4_view;
 struct m4 m4_projection;
 struct m4 m4_mvp;
 
+GLfloat camera_yaw;
+GLfloat camera_pitch;
+GLfloat camera_sensitivity;
+
 /* Global numerical values. */
 GLfloat camera_speed = 1.5f;
 double time_prev = 0;
 double time_delta = 0;
-double mouse_x = 0;
-double mouse_y = 0;
+GLfloat cursor_x = 0;
+GLfloat cursor_y = 0;
+GLfloat cursor_prev_x = 0;
+GLfloat cursor_prev_y = 0;
 
 /* Global event booleans. */
 bool b_mvp_recalculate = false;
+bool b_view_recalculate = false;
 bool b_camera_changed = false;
+bool b_cursor_changed = false;
+bool b_cursor_init = false;
 
 /* Key status functions.
  * --------------------- */
@@ -78,19 +88,37 @@ m4_mvp_calculate(void)
   program_bind_mat4fv(current_shader_program, UNIFORM_NAME_MVP, &m4_mvp);
 }
 
+
+void
+m4_view_calculate(void)
+{
+  struct v3 r = camera_right;
+  struct v3 u = camera_up;
+  struct v3 d = camera_direction;
+  struct v3 p = camera_position;
+
+  m4_view = (struct m4){{
+    { r.x,  r.y,  r.z, -v3_dot(&r, &p)},
+    { u.x,  u.y,  u.z, -v3_dot(&u, &p)},
+    { d.x,  d.y,  d.z,  v3_dot(&d, &p)},
+    {   0,    0,    0,  1},
+  }};
+}
+
+
 void
 camera_look_at(struct v3 * target)
 {
   b_camera_changed = true;
   /* Calculate new direction-vector. */
-  struct v3 d = v3_sub(&camera_position, target);
-  d = v3_normalize(&d);
+  struct v3 new_camera_direction = v3_sub(&camera_position, target);
+  new_camera_direction = v3_normalize(&new_camera_direction);
   /* Calculate new right-vector. */
-  struct v3 r = v3_cross(&d, &camera_up);
-  r = v3_normalize(&r);
+  struct v3 new_camera_right = v3_cross(&new_camera_direction, &camera_up);
+  new_camera_right = v3_normalize(&new_camera_right);
 
   /* Calculate new up-vector. */
-  struct v3 u = v3_cross(&r, &d);
+  struct v3 new_camera_up = v3_cross(&new_camera_right, &new_camera_direction);
 
   /* Update the view matrix.
    *
@@ -107,17 +135,14 @@ camera_look_at(struct v3 * target)
    *                 x [origo]
    *
    * */
-  m4_view = (struct m4){{
-    { r.x,  r.y,  r.z, -v3_dot(&r, &camera_position)},
-    { u.x,  u.y,  u.z, -v3_dot(&u, &camera_position)},
-    { d.x,  d.y,  d.z,  v3_dot(&d, &camera_position)},
-    {   0,    0,    0,  1},
-  }};
 
   /* Update new camera vectors. */
-  camera_direction = v3_invert(&d);
-  camera_up = u;
-  camera_right = r;
+  camera_direction = v3_invert(&new_camera_direction);
+  camera_up = new_camera_up;
+  camera_right = new_camera_right;
+
+  b_view_recalculate = true;
+
 }
 
 struct v3
@@ -160,15 +185,13 @@ camera_system_init(void)
   m4_projection = m4_perspective(M_PI/2, 1000.0f/600.0f, 0.1f, 100.0f);
   m4_mvp_calculate();
 
-  camera_look_at(&camera_target);
-}
+  camera_pitch = 0.0f;
+  camera_yaw = -M_PI/2;
+  camera_sensitivity = 0.05f;
 
-void
-camera_position_propagate(void)
-{
-  m4_view.m[0][3] = camera_position.x;
-  m4_view.m[1][3] = camera_position.y;
-  m4_view.m[2][3] = camera_position.z;
+  direction_global_up = (struct v3){{{0.0f, 1.0f, 0.0f}}};
+
+  camera_look_at(&camera_target);
 }
 
 /* Timing related functions.
@@ -238,7 +261,56 @@ globals_event_reset(void)
 {
   b_mvp_recalculate = false;
   b_camera_changed = false;
+  b_view_recalculate = false;
+  b_cursor_changed = false;
 }
+
+void
+calculate_camera_direction(void)
+{
+  if (!b_cursor_init) {
+    cursor_prev_x = cursor_x;
+    cursor_prev_y = cursor_y;
+    b_cursor_init = true;
+  }
+
+  GLfloat cursor_offset_x = cursor_x - cursor_prev_x;
+  GLfloat cursor_offset_y = cursor_prev_y - cursor_y;
+
+  cursor_prev_x = cursor_x;
+  cursor_prev_y = cursor_y;
+
+  cursor_offset_x *= camera_sensitivity;
+  cursor_offset_y *= camera_sensitivity;
+
+  camera_yaw += cursor_offset_x;
+  camera_pitch += cursor_offset_y;
+
+  info("pitch: %f, yaw: %f\n", camera_pitch, camera_yaw);
+
+  if (camera_pitch >= M_PI ) {
+    camera_pitch = M_PI;
+  }
+  if (camera_pitch <= -M_PI ) {
+    camera_pitch = -M_PI;
+  }
+
+  GLfloat dir_x = cosf(camera_yaw) * cosf(camera_pitch);
+  GLfloat dir_y = sinf(camera_pitch);
+  GLfloat dir_z = sinf(camera_yaw) * cosf(camera_pitch);
+  /* Update camera direction. */
+  camera_direction = (struct v3) {{{dir_x, dir_y, dir_z}}};
+  camera_direction = v3_normalize(&camera_direction);
+
+  /* Re-calculate camera-right and camera-up vectors based on new direction. */
+  camera_right = v3_cross(&camera_direction, &direction_global_up);
+  camera_right = v3_normalize(&camera_right);
+  camera_up = v3_cross(&camera_right, &camera_direction);
+  camera_up = v3_normalize(&camera_up);
+
+  b_view_recalculate = true;
+}
+
 
 void
 event_queue_process(void)
@@ -257,8 +329,15 @@ event_queue_process(void)
   event_evalute_bindings();
   /* Anything needs recalculating? */
   if (b_camera_changed) {
-    camera_position_propagate();
+    b_view_recalculate = true;
+  }
+  if (b_cursor_changed) {
+    calculate_camera_direction();
+  }
+  if (b_view_recalculate) {
+    m4_view_calculate();
     b_mvp_recalculate = true;
+    m4_print(&m4_view);
   }
   if (b_mvp_recalculate) {
     m4_mvp_calculate();
@@ -281,9 +360,16 @@ callback_key(GLFWwindow * window, int key, int scancode, int action, int mods)
 }
 
 void
-callback_mouse_position(GLFWwindow * window, double pos_x, double pos_y)
+callback_cursor_position(GLFWwindow * window, double pos_x, double pos_y)
 {
   UNUSED(window);
-  mouse_x = pos_x;
-  mouse_y = pos_y;
+
+  if (b_cursor_changed) {
+    return;
+  }
+
+  cursor_x = (GLfloat)pos_x;
+  cursor_y = (GLfloat)pos_y;
+
+  b_cursor_changed = true;
 }
