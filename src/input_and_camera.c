@@ -86,25 +86,8 @@ m4_mvp_calculate(void)
 {
   m4_mvp = m4_mul3(&m4_projection, &m4_view, &m4_model);
   program_bind_mat4fv(current_shader_program, UNIFORM_NAME_MVP, &m4_mvp);
+  m4_print(&m4_mvp);
 }
-
-
-void
-m4_view_calculate(void)
-{
-  struct v3 r = camera_right;
-  struct v3 u = camera_up;
-  struct v3 d = camera_direction;
-  struct v3 p = camera_position;
-
-  m4_view = (struct m4){{
-    { r.x,  r.y,  r.z, -v3_dot(&r, &p)},
-    { u.x,  u.y,  u.z, -v3_dot(&u, &p)},
-    { d.x,  d.y,  d.z,  v3_dot(&d, &p)},
-    {   0,    0,    0,  1},
-  }};
-}
-
 
 void
 camera_look_at(struct v3 * target)
@@ -114,16 +97,13 @@ camera_look_at(struct v3 * target)
   struct v3 new_camera_direction = v3_sub(&camera_position, target);
   new_camera_direction = v3_normalize(&new_camera_direction);
   /* Calculate new right-vector. */
-  struct v3 new_camera_right = v3_cross(&new_camera_direction, &camera_up);
+  struct v3 new_camera_right = v3_cross(&camera_up, &new_camera_direction);
   new_camera_right = v3_normalize(&new_camera_right);
 
   /* Calculate new up-vector. */
-  struct v3 new_camera_up = v3_cross(&new_camera_right, &new_camera_direction);
+  struct v3 new_camera_up = v3_cross(&new_camera_direction, &new_camera_right);
 
   /* Update the view matrix.
-   *
-   *  Note: Calculation of the direction vector results in a vector that points
-   *  in the wrong direction:
    *
    *  direction-vector | (target - camera)
    *                   v
@@ -137,12 +117,31 @@ camera_look_at(struct v3 * target)
    * */
 
   /* Update new camera vectors. */
-  camera_direction = v3_invert(&new_camera_direction);
+  camera_direction = new_camera_direction;
   camera_up = new_camera_up;
   camera_right = new_camera_right;
 
   b_view_recalculate = true;
+}
 
+
+void
+m4_view_calculate(void)
+{
+  camera_target = v3_add(&camera_direction, &camera_position);
+  camera_look_at(&camera_target);
+
+  struct v3 r = camera_right;
+  struct v3 u = camera_up;
+  struct v3 d = camera_direction;
+  struct v3 p = camera_position;
+
+  m4_view = (struct m4){{
+    { r.x,  r.y,  r.z, -v3_dot(&r, &p)},
+    { u.x,  u.y,  u.z, -v3_dot(&u, &p)},
+    { d.x,  d.y,  d.z, -v3_dot(&d, &p)},
+    {   0,    0,    0,  1},
+  }};
 }
 
 struct v3
@@ -286,13 +285,11 @@ calculate_camera_direction(void)
   camera_yaw += cursor_offset_x;
   camera_pitch += cursor_offset_y;
 
-  info("pitch: %f, yaw: %f\n", camera_pitch, camera_yaw);
-
-  if (camera_pitch >= M_PI ) {
-    camera_pitch = M_PI;
+  if (camera_pitch >= M_PI/2 ) {
+    camera_pitch = M_PI/2;
   }
-  if (camera_pitch <= -M_PI ) {
-    camera_pitch = -M_PI;
+  if (camera_pitch <= -M_PI/2 ) {
+    camera_pitch = -M_PI/2;
   }
 
   GLfloat dir_x = cosf(camera_yaw) * cosf(camera_pitch);
@@ -337,7 +334,6 @@ event_queue_process(void)
   if (b_view_recalculate) {
     m4_view_calculate();
     b_mvp_recalculate = true;
-    m4_print(&m4_view);
   }
   if (b_mvp_recalculate) {
     m4_mvp_calculate();
