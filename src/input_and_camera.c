@@ -177,12 +177,12 @@ camera_system_init(void)
   m4_model.m[0][3] = -2;
   m4_view = m4_identity();
 
-  m4_projection = m4_perspective(M_PI/2, 1000.0f/600.0f, 0.1f, 100.0f);
+  m4_projection = m4_perspective(M_PI/3, 1000.0f/600.0f, 0.1f, 100.0f);
   m4_mvp_calculate();
 
   camera_pitch = 0.0f;
   camera_yaw = -M_PI/2;
-  camera_sensitivity = 0.05f;
+  camera_sensitivity = 0.005f;
 
   direction_global_up = (struct v3){{{0.0f, 1.0f, 0.0f}}};
 
