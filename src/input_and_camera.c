@@ -86,7 +86,6 @@ m4_mvp_calculate(void)
 {
   m4_mvp = m4_mul3(&m4_projection, &m4_view, &m4_model);
   program_bind_mat4fv(current_shader_program, UNIFORM_NAME_MVP, &m4_mvp);
-  m4_print(&m4_mvp);
 }
 
 void
@@ -128,9 +127,6 @@ camera_look_at(struct v3 * target)
 void
 m4_view_calculate(void)
 {
-  camera_target = v3_add(&camera_direction, &camera_position);
-  camera_look_at(&camera_target);
-
   struct v3 r = camera_right;
   struct v3 u = camera_up;
   struct v3 d = camera_direction;
@@ -293,16 +289,16 @@ calculate_camera_direction(void)
   }
 
   GLfloat dir_x = cosf(camera_yaw) * cosf(camera_pitch);
-  GLfloat dir_y = sinf(camera_pitch);
+  GLfloat dir_y = -sinf(camera_pitch);
   GLfloat dir_z = sinf(camera_yaw) * cosf(camera_pitch);
   /* Update camera direction. */
   camera_direction = (struct v3) {{{dir_x, dir_y, dir_z}}};
   camera_direction = v3_normalize(&camera_direction);
 
   /* Re-calculate camera-right and camera-up vectors based on new direction. */
-  camera_right = v3_cross(&camera_direction, &direction_global_up);
+  camera_right = v3_cross(&direction_global_up, &camera_direction);
   camera_right = v3_normalize(&camera_right);
-  camera_up = v3_cross(&camera_right, &camera_direction);
+  camera_up = v3_cross(&camera_direction, &camera_right);
   camera_up = v3_normalize(&camera_up);
 
   b_view_recalculate = true;
