@@ -20,7 +20,6 @@ struct v3 direction_global_up;
 struct v3 camera_position;
 struct v3 camera_target;
 struct v3 camera_direction;
-struct v3 camera_front;
 struct v3 camera_right;
 
 struct m4 m4_model;
@@ -141,21 +140,39 @@ m4_view_calculate(void)
 }
 
 struct v3
-camera_forward(void)
+camera_go_forward(void)
 {
   double camera_speed_delta = camera_speed * time_delta;
-  struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_front);
+  struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_direction);
+  b_camera_changed = true;
+  return v3_sub(&camera_position, &camera_move);
+}
+
+struct v3
+camera_go_backwards(void)
+{
+  double camera_speed_delta = camera_speed * time_delta;
+  struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_direction);
   b_camera_changed = true;
   return v3_add(&camera_position, &camera_move);
 }
 
 struct v3
-camera_backwards(void)
+camera_go_left(void)
 {
   double camera_speed_delta = camera_speed * time_delta;
-  struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_front);
+  struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_right);
   b_camera_changed = true;
   return v3_sub(&camera_position, &camera_move);
+}
+
+struct v3
+camera_go_right(void)
+{
+  double camera_speed_delta = camera_speed * time_delta;
+  struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_right);
+  b_camera_changed = true;
+  return v3_add(&camera_position, &camera_move);
 }
 
 void
@@ -170,8 +187,6 @@ camera_system_init(void)
 
   camera_right = v3_cross(&camera_up, &camera_direction);
   camera_right = v3_normalize(&camera_right);
-
-  camera_front = (struct v3){{{0.0f, 0.0f, 1.0f}}};
 
   m4_model = m4_identity();
   m4_model.m[0][3] = -2;
@@ -238,16 +253,17 @@ event_evalute_bindings(void)
       glfwSetWindowShouldClose(current_window, GLFW_TRUE);
     }
   }
-  if (key_up_single(GLFW_KEY_SPACE)) {
+  if (key_down(GLFW_KEY_D)) {
+    camera_position = camera_go_forward();
   }
-  if (key_down_single(GLFW_KEY_SPACE)) {
+  if (key_down(GLFW_KEY_S)) {
+    camera_position = camera_go_backwards();
   }
-  if (key_down(GLFW_KEY_SPACE)) {
-    if (key_down(GLFW_KEY_LEFT_SHIFT)) {
-      camera_position = camera_backwards();
-    } else {
-      camera_position = camera_forward();
-    }
+  if (key_down(GLFW_KEY_G)) {
+    camera_position = camera_go_right();
+  }
+  if (key_down(GLFW_KEY_F)) {
+    camera_position = camera_go_left();
   }
 }
 
