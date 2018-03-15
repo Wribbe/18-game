@@ -149,9 +149,6 @@ clock_tick(void);
 
 /* maths.c */
 
-GLfloat
-zero_cutoff(GLfloat f);
-
 void
 v3_print(struct v3 * v3);
 

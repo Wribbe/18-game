@@ -1,16 +1,5 @@
 #include "lib.h"
 
-GLfloat zero_cutoff_min = 1e-2;
-
-GLfloat
-zero_cutoff(GLfloat f)
-{
-  if (f < zero_cutoff_min) {
-    return 0;
-  }
-  return f;
-}
-
 void
 v3_print(struct v3 * v3)
 {
