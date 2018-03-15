@@ -136,6 +136,9 @@ void
 callback_cursor_position(GLFWwindow * window, double pos_x, double pos_y);
 
 void
+callback_mouse_key(GLFWwindow * window, int button, int action, int mods);
+
+void
 camera_system_init(void);
 
 void

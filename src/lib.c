@@ -67,6 +67,9 @@ init_window(size_t width, size_t height, const char * title)
     /* Grab mouse pointer. */
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    /* Set mouse button callback function. */
+    glfwSetMouseButtonCallback(window, callback_mouse_key);
+
     return window;
 }
 

@@ -381,3 +381,10 @@ callback_cursor_position(GLFWwindow * window, double pos_x, double pos_y)
 
   b_cursor_changed = true;
 }
+
+void
+callback_mouse_key(GLFWwindow * window, int button, int action, int mods)
+{
+  UNUSED(window); UNUSED(mods);
+  printf("Button: %d Action: %d\n", button, action);
+}
