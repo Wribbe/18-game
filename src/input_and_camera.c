@@ -265,6 +265,13 @@ event_evalute_bindings(void)
   if (key_down(GLFW_KEY_F)) {
     camera_position = camera_go_left();
   }
+  if (key_down_single(GLFW_MOUSE_BUTTON_LEFT)) {
+    if (key_down(GLFW_KEY_LEFT_SHIFT)) {
+      info("Pressed left mouse button and shift.\n");
+    } else {
+      info("Pressed left mouse button.\n");
+    }
+  }
 }
 
 void
@@ -386,5 +393,5 @@ void
 callback_mouse_key(GLFWwindow * window, int button, int action, int mods)
 {
   UNUSED(window); UNUSED(mods);
-  printf("Button: %d Action: %d\n", button, action);
+  event_queue_add(button, action == GLFW_PRESS ? true : false);
 }
