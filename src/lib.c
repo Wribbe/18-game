@@ -64,6 +64,8 @@ init_window(size_t width, size_t height, const char * title)
     glfwSetCursorPosCallback(window, callback_cursor_position);
     current_window = window;
 
+    /* Grab mouse pointer. */
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     return window;
 }
