@@ -8,7 +8,8 @@ GLuint current_shader_program = 0;
  * ----------------------------- */
 
 void
-error(const char * fmt, ...) {
+error(const char * fmt, ...)
+{
   va_list ap;
   fprintf(stderr, "[!]: ");
   va_start(ap, fmt);
@@ -17,14 +18,14 @@ error(const char * fmt, ...) {
 }
 
 void
-info(const char * fmt, ...) {
+info(const char * fmt, ...)
+{
   va_list ap;
   fprintf(stdout, "[-]: ");
   va_start(ap, fmt);
   vfprintf(stdout, fmt, ap);
   va_end(ap);
 }
-
 
 GLFWwindow *
 init_window(size_t width, size_t height, const char * title)

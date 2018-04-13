@@ -197,4 +197,9 @@ m4_mul3(struct m4 * m1, struct m4 * m2, struct m4 * m3);
 struct m4
 m4_identity(void);
 
+/* object_create.c */
+
+void
+create_cube(struct v3 * p1, struct v3 * p2, struct v3 * p3);
+
 #endif
