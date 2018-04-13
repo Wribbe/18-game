@@ -348,7 +348,7 @@ event_queue_process(void)
     b_view_recalculate = true;
   }
   if (b_cursor_changed) {
-    calculate_camera_direction();
+    //calculate_camera_direction();
   }
   if (b_view_recalculate) {
     m4_view_calculate();
