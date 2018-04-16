@@ -24,7 +24,7 @@ int main(void)
   GLfloat * floats = file_read_floats("data/basic_triangle.txt",
       &num_floats);
 
-  struct vao vao = buffer_create(floats, num_floats);
+  render_object_create(floats, num_floats);
   program_use(program_default);
 
   /* Loop until the user closes the window */
@@ -37,7 +37,7 @@ int main(void)
     glClear(GL_COLOR_BUFFER_BIT);
 
     /* Draw triangle. */
-    draw_arrays(GL_TRIANGLES, &vao);
+    draw_objects();
 
     /* Poll for and process events. */
     event_queue_process();

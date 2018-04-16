@@ -5,6 +5,12 @@
 GLuint current_shader_program = 0;
 struct render_object render_queue[NUM_RENDER_OBJECTS] = {0};
 
+/* Local definitions
+ * ----------------- */
+
+#define FIRST_RENDER_OBJECT 1 /* 0 reserved for error. */
+GLuint last_render_object = FIRST_RENDER_OBJECT;
+
 /* Information output functions.
  * ----------------------------- */
 
@@ -362,12 +368,38 @@ buffer_create(GLfloat * floats, size_t num_floats)
   return vao;
 }
 
+GLuint
+render_object_create(GLfloat * floats, size_t num_floats)
+{
+  if (last_render_object >= NUM_RENDER_OBJECTS) {
+    error("Can't create render object, queue full.");
+    return 0;
+  }
+  struct vao vao = buffer_create(floats, num_floats);
+  GLuint assigned_id = last_render_object++;
+  struct render_object * obj = &render_queue[assigned_id];
+  obj->active = true;
+  obj->render_type = GL_TRIANGLES;
+  obj->vao = vao;
+  obj->transformation = m4_identity();
+  return assigned_id;
+}
+
 void
 draw_arrays(GLenum type, struct vao * vao)
 {
   glBindVertexArray(vao->id);
   glDrawArrays(type, 0, vao->num_indices);
   glBindVertexArray(0);
+}
+
+void
+draw_objects(void)
+{
+  for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
+    struct render_object * obj = &render_queue[i];
+    draw_arrays(obj->render_type, &obj->vao);
+  }
 }
 
 void

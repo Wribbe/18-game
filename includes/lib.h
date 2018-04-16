@@ -88,7 +88,8 @@ struct m4 {
 
 struct render_object {
   bool active;
-  struct vao * vao;
+  GLuint render_type;
+  struct vao vao;
   struct m4 transformation;
 };
 
@@ -122,7 +123,10 @@ struct vao
 buffer_create(GLfloat * floats, size_t num_floats);
 
 void
-draw_arrays(GLenum type, struct vao * vao);
+draw_objects(void);
+
+GLuint
+render_object_create(GLfloat * floats, size_t num_floats);
 
 void
 program_use(GLuint id_program);
