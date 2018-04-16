@@ -266,11 +266,8 @@ event_evalute_bindings(void)
     camera_position = camera_go_left();
   }
   if (key_down_single(GLFW_MOUSE_BUTTON_LEFT)) {
-    if (key_down(GLFW_KEY_LEFT_SHIFT)) {
-      info("Pressed left mouse button and shift.\n");
-    } else {
-      info("Pressed left mouse button.\n");
-    }
+    info("Pressed left mouse button @ coords: (%.2f,%.2f).\n",
+        cursor_x, cursor_y);
   }
 }
 
