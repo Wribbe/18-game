@@ -20,6 +20,7 @@
 #define SIZE_EVENT_QUEUE 512
 #define M_PI 3.14159265358979323846
 #define UNIFORM_NAME_MVP "mvp"
+#define NUM_RENDER_OBJECTS 512
 
 /* Macros
  * ------ */
@@ -85,6 +86,13 @@ struct m4 {
   GLfloat m[4][4];
 };
 
+struct render_object {
+  bool active;
+  struct vao * vao;
+  struct m4 transformation;
+};
+
+
 /* External definitions.
  * --------------------- */
 
@@ -93,6 +101,7 @@ extern GLuint current_shader_program;
 extern struct m4 m4_mvp;
 extern double time_delta;
 extern GLfloat zero_cuttof_min;
+extern struct render_object render_queue[NUM_RENDER_OBJECTS];
 
 /* Lib functions.
  * -------------- */

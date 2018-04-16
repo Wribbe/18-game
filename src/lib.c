@@ -3,6 +3,7 @@
  * -------------------- */
 
 GLuint current_shader_program = 0;
+struct render_object render_queue[NUM_RENDER_OBJECTS] = {0};
 
 /* Information output functions.
  * ----------------------------- */
