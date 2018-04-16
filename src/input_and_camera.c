@@ -90,6 +90,8 @@ m4_mvp_calculate(void)
 void
 camera_look_at(struct v3 * target)
 {
+  /* CURRENTLY NOT IN USE. */
+  //TODO: Figure out why this flips the camera every frame.
   b_camera_changed = true;
   /* Calculate new direction-vector. */
   struct v3 new_camera_direction = v3_sub(&camera_position, target);
