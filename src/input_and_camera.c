@@ -22,7 +22,7 @@ struct v3 camera_target;
 struct v3 camera_direction;
 struct v3 camera_right;
 
-struct m4 m4_model;
+struct m4 m4_camera_model;
 struct m4 m4_view;
 struct m4 m4_projection;
 struct m4 m4_mvp;
@@ -80,11 +80,12 @@ key_down_single(int key)
 /* Camera functions.
  * ----------------- */
 
-void
-m4_mvp_calculate(void)
+struct m4
+m4_mvp_calculate(struct m4 * m4_model)
 {
-  m4_mvp = m4_mul3(&m4_projection, &m4_view, &m4_model);
+  struct m4 m4_mvp = m4_mul3(&m4_projection, &m4_view, m4_model);
   program_bind_mat4fv(current_shader_program, UNIFORM_NAME_MVP, &m4_mvp);
+  return m4_mvp;
 }
 
 void
@@ -190,12 +191,12 @@ camera_system_init(void)
   camera_right = v3_cross(&camera_up, &camera_direction);
   camera_right = v3_normalize(&camera_right);
 
-  m4_model = m4_identity();
-  m4_model.m[0][3] = -2;
+  m4_camera_model = m4_identity();
+  m4_camera_model.m[0][3] = -2;
   m4_view = m4_identity();
 
   m4_projection = m4_perspective(M_PI/3, 1000.0f/600.0f, 0.1f, 100.0f);
-  m4_mvp_calculate();
+  m4_mvp = m4_mvp_calculate(&m4_camera_model);
 
   camera_pitch = 0.0f;
   camera_yaw = -M_PI/2;
@@ -354,7 +355,7 @@ event_queue_process(void)
     b_mvp_recalculate = true;
   }
   if (b_mvp_recalculate) {
-    m4_mvp_calculate();
+    m4_mvp = m4_mvp_calculate(&m4_camera_model);
   }
   /* Reset all event globals. */
   globals_event_reset();
