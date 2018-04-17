@@ -2,7 +2,7 @@
 /* External definitions
  * -------------------- */
 
-GLuint current_shader_program = 0;
+GLuint shader_program_current = 0;
 struct render_object render_queue[NUM_RENDER_OBJECTS] = {0};
 #define FIRST_RENDER_OBJECT 1 /* 0 reserved for error. */
 GLuint last_render_object = FIRST_RENDER_OBJECT;
@@ -447,7 +447,7 @@ draw_objects(void)
   for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
     struct render_object * obj = &render_queue[i];
     struct m4 new_mvp = m4_mvp_calculate(&obj->m4_model);
-    program_bind_mat4fv(current_shader_program, UNIFORM_NAME_MVP, &new_mvp);
+    program_bind_mat4fv(shader_program_current, UNIFORM_NAME_MVP, &new_mvp);
     draw_arrays(obj->render_type, &obj->vao);
     if (b_debug_print_bounds) {
       debug_print_bounds(obj);
@@ -458,7 +458,7 @@ draw_objects(void)
 void
 program_use(GLuint id_program)
 {
-  current_shader_program = id_program;
+  shader_program_current = id_program;
   glUseProgram(id_program);
 }
 
