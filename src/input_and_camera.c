@@ -83,9 +83,7 @@ key_down_single(int key)
 struct m4
 m4_mvp_calculate(struct m4 * m4_model)
 {
-  struct m4 m4_mvp = m4_mul3(&m4_projection, &m4_view, m4_model);
-  program_bind_mat4fv(current_shader_program, UNIFORM_NAME_MVP, &m4_mvp);
-  return m4_mvp;
+  return m4_mul3(&m4_projection, &m4_view, m4_model);
 }
 
 void

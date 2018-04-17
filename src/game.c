@@ -25,6 +25,8 @@ int main(void)
       &num_floats);
 
   render_object_create(floats, num_floats);
+  GLuint id2 = render_object_create(floats, num_floats);
+  object_translate(id2, &(struct v3){{{0.3f, 0.3f, 0.3f}}});
   program_use(program_default);
 
   /* Loop until the user closes the window */
@@ -36,11 +38,14 @@ int main(void)
     /* Clear color. */
     glClear(GL_COLOR_BUFFER_BIT);
 
-    /* Draw triangle. */
-    draw_objects();
-
     /* Poll for and process events. */
     event_queue_process();
+
+    /* Run physics and collisions. */
+    physics_tick();
+
+    /* Draw objects. */
+    draw_objects();
 
     /* Swap front and back buffers. */
     glfwSwapBuffers(window);

@@ -4,12 +4,13 @@
 
 GLuint current_shader_program = 0;
 struct render_object render_queue[NUM_RENDER_OBJECTS] = {0};
-
-/* Local definitions
- * ----------------- */
-
 #define FIRST_RENDER_OBJECT 1 /* 0 reserved for error. */
 GLuint last_render_object = FIRST_RENDER_OBJECT;
+
+/* DEBUG globals
+ * ----------------- */
+
+bool b_debug_print_bounds = true;
 
 /* Information output functions.
  * ----------------------------- */
@@ -368,6 +369,44 @@ buffer_create(GLfloat * floats, size_t num_floats)
   return vao;
 }
 
+struct bounds
+make_bounds(GLfloat * floats, size_t num_floats, struct vao * vao)
+{
+  if (num_floats < 3) {
+    error("make_bounds needs at least 3 floats.\n");
+    return (struct bounds){
+      {{{0.0f, 0.0f, 0.0f}}},
+      {{{0.0f, 0.0f, 0.0f}}},
+    };
+  }
+  GLfloat max_x = floats[0];
+  GLfloat max_y = floats[1];
+  GLfloat max_z = floats[2];
+
+  GLfloat min_x = max_x;
+  GLfloat min_y = max_y;
+  GLfloat min_z = max_z;
+
+  for (size_t i=vao->stride; i<num_floats; i += vao->stride) {
+    GLfloat x = floats[i];
+    GLfloat y = floats[i+1];
+    GLfloat z = floats[i+2];
+
+    max_x = x > max_x ? x : max_x;
+    max_y = y > max_y ? y : max_y;
+    max_z = z > max_z ? z : max_z;
+
+    min_x = x < min_x ? x : min_x;
+    min_y = y < min_y ? y : min_y;
+    min_z = z < min_z ? z : min_z;
+  }
+
+  return (struct bounds) {
+    {{{max_x, max_y, max_z}}},
+    {{{min_x, min_y, min_z}}},
+  };
+}
+
 GLuint
 render_object_create(GLfloat * floats, size_t num_floats)
 {
@@ -381,7 +420,10 @@ render_object_create(GLfloat * floats, size_t num_floats)
   obj->active = true;
   obj->render_type = GL_TRIANGLES;
   obj->vao = vao;
-  obj->transformation = m4_identity();
+  obj->m4_model = m4_identity();
+
+  obj->bounds = make_bounds(floats, num_floats, &vao);
+
   return assigned_id;
 }
 
@@ -394,11 +436,22 @@ draw_arrays(GLenum type, struct vao * vao)
 }
 
 void
+debug_print_bounds(struct render_object * obj)
+{
+
+}
+
+void
 draw_objects(void)
 {
   for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
     struct render_object * obj = &render_queue[i];
+    struct m4 new_mvp = m4_mvp_calculate(&obj->m4_model);
+    program_bind_mat4fv(current_shader_program, UNIFORM_NAME_MVP, &new_mvp);
     draw_arrays(obj->render_type, &obj->vao);
+    if (b_debug_print_bounds) {
+      debug_print_bounds(obj);
+    }
   }
 }
 
@@ -414,4 +467,14 @@ program_bind_mat4fv(GLuint id_program, const char * uniform, struct m4 * data)
 {
     GLuint location = glGetUniformLocation(id_program, uniform);
     glUniformMatrix4fv(location, 1, GL_TRUE, data->m[0]);
+}
+
+void
+physics_tick(void)
+{
+  /* Update all transformation matrices for alla render objects. */
+  for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
+    struct render_object * obj = &render_queue[i];
+    m4_mvp_calculate(&obj->m4_model);
+  }
 }

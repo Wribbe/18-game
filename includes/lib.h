@@ -86,11 +86,17 @@ struct m4 {
   GLfloat m[4][4];
 };
 
+struct bounds {
+  struct v3 top_left;
+  struct v3 bottom_right;
+};
+
 struct render_object {
   bool active;
   GLuint render_type;
   struct vao vao;
-  struct m4 transformation;
+  struct m4 m4_model;
+  struct bounds bounds;
 };
 
 
@@ -101,8 +107,13 @@ extern GLFWwindow * current_window;
 extern GLuint current_shader_program;
 extern struct m4 m4_mvp;
 extern double time_delta;
-extern GLfloat zero_cuttof_min;
 extern struct render_object render_queue[NUM_RENDER_OBJECTS];
+extern GLuint last_render_object;
+
+/* DEBUG globals
+ * ----------------- */
+
+extern bool b_debug_print_bounds;
 
 /* Lib functions.
  * -------------- */
@@ -137,6 +148,9 @@ program_bind_mat4fv(GLuint id_program, const char * uniform, struct m4 * data);
 void
 init_environment(void);
 
+void
+physics_tick(void);
+
 /* input_and_camera.c */
 
 void
@@ -159,6 +173,9 @@ clock_init(void);
 
 void
 clock_tick(void);
+
+struct m4
+m4_mvp_calculate(struct m4 * model);
 
 /* maths.c */
 
@@ -214,5 +231,8 @@ m4_identity(void);
 
 void
 create_cube(struct v3 * p1, struct v3 * p2, struct v3 * p3);
+
+GLint
+object_translate(GLuint id, struct v3 * v);
 
 #endif
