@@ -3,8 +3,8 @@
   echo '[Error:] Need 2 arguments.' && exit
 }
 
-from=$1
-to=$2
+from="$1"
+to="$2"
 
 read -p "[Info:] Will try to replace < $from > with < $to >, continue? y/n: " yn
 case $yn in

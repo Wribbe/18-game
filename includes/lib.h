@@ -87,7 +87,7 @@ struct m4 {
   GLfloat m[4][4];
 };
 
-struct bounds {
+struct bound_points {
   struct v3 top_left;
   struct v3 bottom_right;
 };
@@ -97,7 +97,7 @@ struct render_object {
   GLuint render_type;
   struct vao vao;
   struct m4 m4_model;
-  struct bounds bounds;
+  struct bound_points bounds;
 };
 
 

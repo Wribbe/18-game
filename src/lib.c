@@ -377,12 +377,12 @@ buffer_create(GLfloat * floats, size_t num_floats)
   return vao;
 }
 
-struct bounds
+struct bound_points
 make_bounds(GLfloat * floats, size_t num_floats, struct vao * vao)
 {
   if (num_floats < 3) {
     error("make_bounds needs at least 3 floats.\n");
-    return (struct bounds){
+    return (struct bound_points){
       {{{0.0f, 0.0f, 0.0f}}},
       {{{0.0f, 0.0f, 0.0f}}},
     };
@@ -409,7 +409,7 @@ make_bounds(GLfloat * floats, size_t num_floats, struct vao * vao)
     min_z = z < min_z ? z : min_z;
   }
 
-  return (struct bounds) {
+  return (struct bound_points) {
     {{{max_x, max_y, max_z}}},
     {{{min_x, min_y, min_z}}},
   };
