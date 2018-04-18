@@ -26,6 +26,7 @@
  * ------ */
 #define UNUSED(x) (void)x
 #define COUNT(x) ((sizeof(x)/sizeof(x[0])))
+#define INVALID_OBJECT_ID(id) (id <= 0 || id > last_render_object)
 
 /* Logging functions.
  * ------------------ */

@@ -11,7 +11,7 @@ create_cube(struct v3 * p1, struct v3 * p2, struct v3 * p3)
 GLint
 object_translate(GLuint id, struct v3 * v)
 {
-  if (id <= 0 || id > last_render_object) {
+  if (INVALID_OBJECT_ID(id)) {
     return -1;
   }
   struct render_object * obj = &render_queue[id];
