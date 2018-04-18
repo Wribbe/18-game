@@ -97,7 +97,7 @@ struct render_object {
   GLuint render_type;
   struct vao vao;
   struct m4 m4_model;
-  struct bound_points bounds;
+  struct bound_points bound_points;
 };
 
 struct bound_square {

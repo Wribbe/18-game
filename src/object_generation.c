@@ -20,7 +20,7 @@ object_translate(GLuint id, struct v3 * v)
   obj->m4_model.m[2][3] += v->z;
 
   /* Perturb the bounding coordinates by same amount. */
-  obj->bounds.top_left = v3_add(&obj->bounds.top_left, v);
-  obj->bounds.bottom_right = v3_add(&obj->bounds.bottom_right, v);
+  obj->bound_points.top_left = v3_add(&obj->bound_points.top_left, v);
+  obj->bound_points.bottom_right = v3_add(&obj->bound_points.bottom_right, v);
   return 0;
 }

@@ -378,10 +378,10 @@ buffer_create(GLfloat * floats, size_t num_floats)
 }
 
 struct bound_points
-make_bounds(GLfloat * floats, size_t num_floats, struct vao * vao)
+make_bound_points(GLfloat * floats, size_t num_floats, struct vao * vao)
 {
   if (num_floats < 3) {
-    error("make_bounds needs at least 3 floats.\n");
+    error("make_bound_points needs at least 3 floats.\n");
     return (struct bound_points){
       {{{0.0f, 0.0f, 0.0f}}},
       {{{0.0f, 0.0f, 0.0f}}},
@@ -430,7 +430,7 @@ render_object_create(GLfloat * floats, size_t num_floats)
   obj->vao = vao;
   obj->m4_model = m4_identity();
 
-  obj->bounds = make_bounds(floats, num_floats, &vao);
+  obj->bound_points = make_bound_points(floats, num_floats, &vao);
 
   return assigned_id;
 }
@@ -446,8 +446,8 @@ draw_arrays(GLenum type, struct vao * vao)
 struct bound_square
 bound_square_get(struct render_object * obj)
 {
-  struct v3 * top_left = &obj->bounds.top_left;
-  struct v3 * bottom_right = &obj->bounds.bottom_right;
+  struct v3 * top_left = &obj->bound_points.top_left;
+  struct v3 * bottom_right = &obj->bound_points.bottom_right;
   return (struct bound_square){{
     *top_left,
     {{{bottom_right->x, top_left->y, top_left->z}}},
