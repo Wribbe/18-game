@@ -121,7 +121,7 @@ extern GLuint vao_debug;
 /* DEBUG globals
  * ----------------- */
 
-extern bool b_debug_print_bounds;
+extern bool b_debug_print_bounding_squares;
 
 /* Lib functions.
  * -------------- */

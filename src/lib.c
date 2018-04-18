@@ -13,7 +13,7 @@ GLuint vao_debug = 0;
 /* DEBUG globals
  * ----------------- */
 
-bool b_debug_print_bounds = true;
+bool b_debug_print_bounding_squares = true;
 
 /* Information output functions.
  * ----------------------------- */
@@ -499,7 +499,7 @@ buffers_debug_feed(struct render_object * obj)
 }
 
 void
-debug_print_bounds(struct render_object * obj)
+debug_print_bounding_squares(struct render_object * obj)
 {
   size_t num_points = buffers_debug_feed(obj);
   glBindVertexArray(vao_debug);
@@ -515,9 +515,9 @@ draw_objects(void)
     m4_mvp = m4_mvp_calculate(&obj->m4_model);
     program_use(shader_program_default);
     draw_arrays(obj->render_type, &obj->vao);
-    if (b_debug_print_bounds) {
+    if (b_debug_print_bounding_squares) {
       program_use(shader_program_debug);
-      debug_print_bounds(obj);
+      debug_print_bounding_squares(obj);
     }
   }
 }
