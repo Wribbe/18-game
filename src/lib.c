@@ -4,6 +4,7 @@
 
 GLuint shader_program_current = 0;
 GLuint shader_program_debug = 0;
+GLuint shader_program_default = 0;
 struct render_object render_queue[NUM_RENDER_OBJECTS] = {0};
 #define FIRST_RENDER_OBJECT 1 /* 0 reserved for error. */
 GLuint last_render_object = FIRST_RENDER_OBJECT;
@@ -436,7 +437,6 @@ render_object_create(GLfloat * floats, size_t num_floats)
 void
 draw_arrays(GLenum type, struct vao * vao)
 {
-  glUseProgram(shader_program_current);
   glBindVertexArray(vao->id);
   glDrawArrays(type, 0, vao->num_indices);
   glBindVertexArray(0);
@@ -449,7 +449,6 @@ GLuint ebo_debug = 0;
 void
 debug_print_bounds(struct render_object * obj)
 {
-  glUseProgram(shader_program_debug);
   if (!vao_debug) {
     /* Generate all buffers/vertex Arrays. */
     glGenVertexArrays(1, &vao_debug);
@@ -482,10 +481,11 @@ draw_objects(void)
 {
   for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
     struct render_object * obj = &render_queue[i];
-    struct m4 new_mvp = m4_mvp_calculate(&obj->m4_model);
-    program_bind_mat4fv(shader_program_current, UNIFORM_NAME_MVP, &new_mvp);
+    m4_mvp = m4_mvp_calculate(&obj->m4_model);
+    program_use(shader_program_default);
     draw_arrays(obj->render_type, &obj->vao);
     if (b_debug_print_bounds) {
+      program_use(shader_program_debug);
       debug_print_bounds(obj);
     }
   }
@@ -496,6 +496,7 @@ program_use(GLuint id_program)
 {
   shader_program_current = id_program;
   glUseProgram(id_program);
+  program_bind_mat4fv(id_program, UNIFORM_NAME_MVP, &m4_mvp);
 }
 
 void

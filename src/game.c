@@ -12,10 +12,10 @@ int main(void)
   /* Initialize sub-systems. */
   init_environment();
 
-  GLuint program_default = shader_program_create(
+  shader_program_default = shader_program_create(
       "src/shaders/default.vert",
       "src/shaders/default.frag");
-  if (program_default == 0) {
+  if (shader_program_default == 0) {
     error("Shader program compilation failed.\n");
     return EXIT_FAILURE;
   }
@@ -27,7 +27,7 @@ int main(void)
   render_object_create(floats, num_floats);
   GLuint id2 = render_object_create(floats, num_floats);
   object_translate(id2, &(struct v3){{{0.3f, 0.3f, 0.3f}}});
-  program_use(program_default);
+  program_use(shader_program_default);
 
   /* Loop until the user closes the window */
   while (!glfwWindowShouldClose(window))

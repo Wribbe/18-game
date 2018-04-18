@@ -106,6 +106,7 @@ struct render_object {
 extern GLFWwindow * current_window;
 extern GLuint shader_program_current;
 extern GLuint shader_program_debug;
+extern GLuint shader_program_default;
 extern struct m4 m4_mvp;
 extern double time_delta;
 extern struct render_object render_queue[NUM_RENDER_OBJECTS];
