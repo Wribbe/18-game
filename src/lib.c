@@ -9,6 +9,7 @@ struct render_object render_queue[NUM_RENDER_OBJECTS] = {0};
 #define FIRST_RENDER_OBJECT 1 /* 0 reserved for error. */
 GLuint last_render_object = FIRST_RENDER_OBJECT;
 GLuint vao_debug = 0;
+GLuint id_object_player = 0;
 
 /* DEBUG globals
  * ----------------- */
@@ -584,5 +585,17 @@ physics_tick(void)
 {
   if (objects_intersect(1,2)) {
     info("Objects 1 and 2 intersect.\n");
+  } else {
+    info("Objects 1 and 2 do not intersect.\n");
   }
+}
+
+void
+set_as_player(GLuint object_id)
+{
+  if (INVALID_OBJECT_ID(object_id)) {
+    error("set_as_player received invalid id: %u\n", object_id);
+    return;
+  }
+  id_object_player = object_id;
 }

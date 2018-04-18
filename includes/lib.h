@@ -117,6 +117,7 @@ extern double time_delta;
 extern struct render_object render_queue[NUM_RENDER_OBJECTS];
 extern GLuint last_render_object;
 extern GLuint vao_debug;
+extern GLuint id_object_player;
 
 
 /* DEBUG globals
@@ -159,6 +160,9 @@ init_environment(void);
 
 void
 physics_tick(void);
+
+void
+set_as_player(GLuint object_id);
 
 /* input_and_camera.c */
 

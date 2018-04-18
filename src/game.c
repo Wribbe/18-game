@@ -24,9 +24,11 @@ int main(void)
   GLfloat * floats = file_read_floats("data/basic_triangle.txt",
       &num_floats);
 
-  render_object_create(floats, num_floats);
+  GLuint id1 = render_object_create(floats, num_floats);
+  set_as_player(id1);
+
   GLuint id2 = render_object_create(floats, num_floats);
-  object_translate(id2, &(struct v3){{{0.3f, 0.3f, 0.3f}}});
+  object_translate(id2, &(struct v3){{{0.3f, 0.3f, 0.0f}}});
   program_use(shader_program_default);
 
   /* Loop until the user closes the window */

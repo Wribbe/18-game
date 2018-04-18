@@ -33,6 +33,7 @@ GLfloat camera_sensitivity;
 
 /* Global numerical values. */
 GLfloat camera_speed = 1.5f;
+GLfloat speed_player = 2.5f;
 double time_prev = 0;
 double time_delta = 0;
 GLfloat cursor_x = 0;
@@ -89,8 +90,6 @@ m4_mvp_calculate(struct m4 * m4_model)
 void
 camera_look_at(struct v3 * target)
 {
-  /* CURRENTLY NOT IN USE. */
-  //TODO: Figure out why this flips the camera every frame.
   b_camera_changed = true;
   /* Calculate new direction-vector. */
   struct v3 new_camera_direction = v3_sub(&camera_position, target);
@@ -177,6 +176,38 @@ camera_go_right(void)
 }
 
 void
+player_go_right(double delta_speed_player)
+{
+  struct v3 translation = v3_mulf(delta_speed_player,
+      &(struct v3){{{1.0f, 0.0f, 0.0f}}});
+  object_translate(id_object_player, &translation);
+}
+
+void
+player_go_left(double delta_speed_player)
+{
+  struct v3 translation = v3_mulf(delta_speed_player,
+      &(struct v3){{{-1.0f, 0.0f, 0.0f}}});
+  object_translate(id_object_player, &translation);
+}
+
+void
+player_go_up(double delta_speed_player)
+{
+  struct v3 translation = v3_mulf(delta_speed_player,
+      &(struct v3){{{0.0f, 1.0f, 0.0f}}});
+  object_translate(id_object_player, &translation);
+}
+
+void
+player_go_down(double delta_speed_player)
+{
+  struct v3 translation = v3_mulf(delta_speed_player,
+      &(struct v3){{{0.0f, -1.0f, 0.0f}}});
+  object_translate(id_object_player, &translation);
+}
+
+void
 camera_system_init(void)
 {
   camera_position = (struct v3){{{0.0f, 0.0f, -3.0f}}};
@@ -244,6 +275,9 @@ event_queue_add(int key, bool pressed)
 void
 event_evalute_bindings(void)
 {
+
+  double delta_speed_player = speed_player * time_delta;
+
   if (key_down(GLFW_KEY_ESCAPE)) {
     glfwSetWindowShouldClose(current_window, GLFW_TRUE);
   }
@@ -255,16 +289,16 @@ event_evalute_bindings(void)
     }
   }
   if (key_down(GLFW_KEY_D)) {
-    camera_position = camera_go_forward();
+    player_go_up(delta_speed_player);
   }
   if (key_down(GLFW_KEY_S)) {
-    camera_position = camera_go_backwards();
+    player_go_down(delta_speed_player);
   }
   if (key_down(GLFW_KEY_G)) {
-    camera_position = camera_go_right();
+    player_go_right(delta_speed_player);
   }
   if (key_down(GLFW_KEY_F)) {
-    camera_position = camera_go_left();
+    player_go_left(delta_speed_player);
   }
   if (key_down_single(GLFW_MOUSE_BUTTON_LEFT)) {
     info("Pressed left mouse button @ coords: (%.2f,%.2f).\n",
