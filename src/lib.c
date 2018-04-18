@@ -8,6 +8,7 @@ GLuint shader_program_default = 0;
 struct render_object render_queue[NUM_RENDER_OBJECTS] = {0};
 #define FIRST_RENDER_OBJECT 1 /* 0 reserved for error. */
 GLuint last_render_object = FIRST_RENDER_OBJECT;
+GLuint vao_debug = 0;
 
 /* DEBUG globals
  * ----------------- */
@@ -442,10 +443,6 @@ draw_arrays(GLenum type, struct vao * vao)
   glBindVertexArray(0);
 }
 
-GLuint vao_debug = 0;
-GLuint vbo_debug = 0;
-GLuint ebo_debug = 0;
-
 size_t
 buffers_debug_feed(struct render_object * obj)
 {
@@ -467,6 +464,8 @@ buffers_debug_feed(struct render_object * obj)
 
   if (!vao_debug) {
     /* Generate all buffers/vertex Arrays. */
+    GLuint vbo_debug = 0;
+    GLuint ebo_debug = 0;
     glGenVertexArrays(1, &vao_debug);
     glGenBuffers(1, &vbo_debug);
     glGenBuffers(1, &ebo_debug);

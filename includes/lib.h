@@ -112,6 +112,8 @@ extern struct m4 m4_mvp;
 extern double time_delta;
 extern struct render_object render_queue[NUM_RENDER_OBJECTS];
 extern GLuint last_render_object;
+extern GLuint vao_debug;
+
 
 /* DEBUG globals
  * ----------------- */
