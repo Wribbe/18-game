@@ -32,10 +32,10 @@ GLfloat camera_pitch;
 GLfloat camera_sensitivity;
 
 /* Global numerical values. */
-GLfloat camera_speed = 1.5f;
+GLfloat speed_camera = 1.5f;
 GLfloat speed_player = 2.5f;
-double time_prev = 0;
-double time_delta = 0;
+double prev_time = 0;
+double delta_time = 0;
 GLfloat cursor_x = 0;
 GLfloat cursor_y = 0;
 GLfloat cursor_prev_x = 0;
@@ -142,8 +142,8 @@ m4_view_calculate(void)
 struct v3
 camera_go_forward(void)
 {
-  double camera_speed_delta = camera_speed * time_delta;
-  struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_direction);
+  double delta_camera_speed = speed_camera * delta_time;
+  struct v3 camera_move = v3_mulf(delta_camera_speed, &camera_direction);
   b_camera_changed = true;
   return v3_sub(&camera_position, &camera_move);
 }
@@ -151,8 +151,8 @@ camera_go_forward(void)
 struct v3
 camera_go_backwards(void)
 {
-  double camera_speed_delta = camera_speed * time_delta;
-  struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_direction);
+  double delta_camera_speed = speed_camera * delta_time;
+  struct v3 camera_move = v3_mulf(delta_camera_speed, &camera_direction);
   b_camera_changed = true;
   return v3_add(&camera_position, &camera_move);
 }
@@ -160,8 +160,8 @@ camera_go_backwards(void)
 struct v3
 camera_go_left(void)
 {
-  double camera_speed_delta = camera_speed * time_delta;
-  struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_right);
+  double delta_camera_speed = speed_camera * delta_time;
+  struct v3 camera_move = v3_mulf(delta_camera_speed, &camera_right);
   b_camera_changed = true;
   return v3_sub(&camera_position, &camera_move);
 }
@@ -169,8 +169,8 @@ camera_go_left(void)
 struct v3
 camera_go_right(void)
 {
-  double camera_speed_delta = camera_speed * time_delta;
-  struct v3 camera_move = v3_mulf(camera_speed_delta, &camera_right);
+  double delta_camera_speed = speed_camera * delta_time;
+  struct v3 camera_move = v3_mulf(delta_camera_speed, &camera_right);
   b_camera_changed = true;
   return v3_add(&camera_position, &camera_move);
 }
@@ -242,15 +242,15 @@ camera_system_init(void)
 void
 clock_init(void)
 {
-  time_prev = glfwGetTime();
+  prev_time = glfwGetTime();
 }
 
 void
 clock_tick(void)
 {
   double time_current = glfwGetTime();
-  time_delta = time_current-time_prev;
-  time_prev = time_current;
+  delta_time = time_current-prev_time;
+  prev_time = time_current;
 }
 
 /* Event queue functions.
@@ -276,7 +276,7 @@ void
 event_evalute_bindings(void)
 {
 
-  double delta_speed_player = speed_player * time_delta;
+  double delta_speed_player = speed_player * delta_time;
 
   if (key_down(GLFW_KEY_ESCAPE)) {
     glfwSetWindowShouldClose(current_window, GLFW_TRUE);

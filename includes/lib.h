@@ -113,7 +113,7 @@ extern GLuint shader_program_current;
 extern GLuint shader_program_debug;
 extern GLuint shader_program_default;
 extern struct m4 m4_mvp;
-extern double time_delta;
+extern double delta_time;
 extern struct render_object render_queue[NUM_RENDER_OBJECTS];
 extern GLuint last_render_object;
 extern GLuint vao_debug;
