@@ -446,9 +446,25 @@ GLuint vao_debug = 0;
 GLuint vbo_debug = 0;
 GLuint ebo_debug = 0;
 
-void
-debug_print_bounds(struct render_object * obj)
+size_t
+buffers_debug_feed(struct render_object * obj)
 {
+  struct v3 * top_left = &obj->bounds.top_left;
+  struct v3 * bottom_right = &obj->bounds.bottom_right;
+  struct v3 points_bounds[] = {
+    *top_left,
+    {{{bottom_right->x, top_left->y, top_left->z}}},
+    {{{top_left->x, bottom_right->y, top_left->z}}},
+    *bottom_right,
+  };
+
+  GLuint indices[] = {
+    0, 1,
+    0, 2,
+    2, 3,
+    3, 1,
+  };
+
   if (!vao_debug) {
     /* Generate all buffers/vertex Arrays. */
     glGenVertexArrays(1, &vao_debug);
@@ -457,9 +473,8 @@ debug_print_bounds(struct render_object * obj)
     /* Bind Array and setup buffers. */
     glBindVertexArray(vao_debug);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_debug);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(struct bounds), &obj->bounds,
+    glBufferData(GL_ARRAY_BUFFER, sizeof(points_bounds), &points_bounds,
         GL_DYNAMIC_DRAW);
-    GLuint indices[] = {0, 1};
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_debug);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
         GL_STATIC_DRAW);
@@ -470,9 +485,20 @@ debug_print_bounds(struct render_object * obj)
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  } else {
+    glBindVertexArray(vao_debug);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points_bounds), 0);
+    glBindVertexArray(0);
   }
+  return COUNT(indices);
+}
+
+void
+debug_print_bounds(struct render_object * obj)
+{
+  size_t num_points = buffers_debug_feed(obj);
   glBindVertexArray(vao_debug);
-  glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_LINES, num_points, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 }
 
