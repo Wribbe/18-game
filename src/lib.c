@@ -3,6 +3,7 @@
  * -------------------- */
 
 GLuint shader_program_current = 0;
+GLuint shader_program_debug = 0;
 struct render_object render_queue[NUM_RENDER_OBJECTS] = {0};
 #define FIRST_RENDER_OBJECT 1 /* 0 reserved for error. */
 GLuint last_render_object = FIRST_RENDER_OBJECT;
@@ -90,6 +91,11 @@ init_environment(void)
 
     /* Initialize time delta clock. */
     clock_init();
+
+    /* Create debug shader program. */
+    shader_program_debug = shader_program_create(
+        "src/shaders/default.vert",
+        "src/shaders/debug.frag");
 }
 
 char *
@@ -430,15 +436,45 @@ render_object_create(GLfloat * floats, size_t num_floats)
 void
 draw_arrays(GLenum type, struct vao * vao)
 {
+  glUseProgram(shader_program_current);
   glBindVertexArray(vao->id);
   glDrawArrays(type, 0, vao->num_indices);
   glBindVertexArray(0);
 }
 
+GLuint vao_debug = 0;
+GLuint vbo_debug = 0;
+GLuint ebo_debug = 0;
+
 void
 debug_print_bounds(struct render_object * obj)
 {
-
+  glUseProgram(shader_program_debug);
+  if (!vao_debug) {
+    /* Generate all buffers/vertex Arrays. */
+    glGenVertexArrays(1, &vao_debug);
+    glGenBuffers(1, &vbo_debug);
+    glGenBuffers(1, &ebo_debug);
+    /* Bind Array and setup buffers. */
+    glBindVertexArray(vao_debug);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_debug);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(struct bounds), &obj->bounds,
+        GL_DYNAMIC_DRAW);
+    GLuint indices[] = {0, 1};
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_debug);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+        GL_STATIC_DRAW);
+    /* Set up vertex attributes. */
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat), 0);
+    glEnableVertexAttribArray(0);
+    /* Unbind everything, unbind array first. */
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  }
+  glBindVertexArray(vao_debug);
+  glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
+  glBindVertexArray(0);
 }
 
 void
