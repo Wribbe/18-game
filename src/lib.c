@@ -458,7 +458,7 @@ bound_square_get(struct render_object * obj)
 
 
 size_t
-buffers_debug_feed(struct render_object * obj)
+debug_buffers_feed(struct render_object * obj)
 {
   struct bound_square bound_square = bound_square_get(obj);
   GLuint indices[] = {
@@ -501,7 +501,7 @@ buffers_debug_feed(struct render_object * obj)
 void
 debug_print_bounding_squares(struct render_object * obj)
 {
-  size_t num_points = buffers_debug_feed(obj);
+  size_t num_points = debug_buffers_feed(obj);
   glBindVertexArray(vao_debug);
   glDrawElements(GL_LINES, num_points, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
