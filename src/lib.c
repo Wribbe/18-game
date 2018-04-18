@@ -443,18 +443,24 @@ draw_arrays(GLenum type, struct vao * vao)
   glBindVertexArray(0);
 }
 
-size_t
-buffers_debug_feed(struct render_object * obj)
+struct bound_square
+bound_square_get(struct render_object * obj)
 {
   struct v3 * top_left = &obj->bounds.top_left;
   struct v3 * bottom_right = &obj->bounds.bottom_right;
-  struct v3 points_bounds[] = {
+  return (struct bound_square){{
     *top_left,
     {{{bottom_right->x, top_left->y, top_left->z}}},
     {{{top_left->x, bottom_right->y, top_left->z}}},
     *bottom_right,
-  };
+  }};
+}
 
+
+size_t
+buffers_debug_feed(struct render_object * obj)
+{
+  struct bound_square bound_square = bound_square_get(obj);
   GLuint indices[] = {
     0, 1,
     0, 2,
@@ -472,7 +478,7 @@ buffers_debug_feed(struct render_object * obj)
     /* Bind Array and setup buffers. */
     glBindVertexArray(vao_debug);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_debug);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(points_bounds), &points_bounds,
+    glBufferData(GL_ARRAY_BUFFER, sizeof(bound_square), &bound_square,
         GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_debug);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
@@ -486,7 +492,7 @@ buffers_debug_feed(struct render_object * obj)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   } else {
     glBindVertexArray(vao_debug);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(points_bounds), 0);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(bound_square), 0);
     glBindVertexArray(0);
   }
   return COUNT(indices);

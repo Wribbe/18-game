@@ -100,6 +100,9 @@ struct render_object {
   struct bound_points bounds;
 };
 
+struct bound_square {
+  struct v3 points[4];
+};
 
 /* External definitions.
  * --------------------- */
