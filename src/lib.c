@@ -456,6 +456,48 @@ bound_square_get(struct render_object * obj)
   }};
 }
 
+#define V3_OUTSIDE(v,i,comp,a,b) (v->i comp a->i && v->i comp b->i)
+
+bool
+v3_between(struct v3 * check, struct v3 * a, struct v3 * b)
+{
+  if (V3_OUTSIDE(check,x,<,a,b) || V3_OUTSIDE(check,x,>,a,b)) {
+    return false;
+  }
+  if (V3_OUTSIDE(check,y,<,a,b) || V3_OUTSIDE(check,y,>,a,b)) {
+    return false;
+  }
+  return true;
+}
+
+bool
+objects_intersect(GLuint id1, GLuint id2)
+{
+  if (INVALID_OBJECT_ID(id1) || INVALID_OBJECT_ID(id2)) {
+    if (INVALID_OBJECT_ID(id1)) {
+      error("objects_intersect got invalid id1: %u\n", id1);
+    }
+    if (INVALID_OBJECT_ID(id2)) {
+      error("objects_intersect got invalid id2: %u\n", id2);
+    }
+    return false;
+  }
+  struct render_object * obj1 = &render_queue[id1];
+  struct render_object * obj2 = &render_queue[id2];
+
+  struct bound_square sq1 = bound_square_get(obj1);
+  struct bound_square sq2 = bound_square_get(obj2);
+
+  for (size_t i=0; i<COUNT(sq1.points); i++) {
+    for (size_t j=1; j<COUNT(sq2.points); j++) {
+      if (v3_between(&sq1.points[i], &sq2.points[j-1], &sq2.points[j])) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 
 size_t
 debug_buffers_feed(struct render_object * obj)
@@ -540,9 +582,7 @@ program_bind_mat4fv(GLuint id_program, const char * uniform, struct m4 * data)
 void
 physics_tick(void)
 {
-  /* Update all transformation matrices for alla render objects. */
-  for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
-    struct render_object * obj = &render_queue[i];
-    m4_mvp_calculate(&obj->m4_model);
+  if (objects_intersect(1,2)) {
+    info("Objects 1 and 2 intersect.\n");
   }
 }
