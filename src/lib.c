@@ -580,11 +580,14 @@ draw_objects(void)
   draw_object(id_object_player);
 }
 
+struct v3 COLOR_RED = {{{1.0f, 0.0f, 0.0f}}};
+
 void
 program_use(GLuint id_program)
 {
   glUseProgram(id_program);
   program_bind_mat4fv(id_program, UNIFORM_NAME_MVP, &m4_mvp);
+  program_bind_3fv(id_program, UNIFORM_NAME_COLOR_BORDER, &COLOR_RED);
 }
 
 void
@@ -595,13 +598,20 @@ program_bind_mat4fv(GLuint id_program, const char * uniform, struct m4 * data)
 }
 
 void
+program_bind_3fv(GLuint id_program, const char * uniform, struct v3 * data)
+{
+    GLuint location = glGetUniformLocation(id_program, uniform);
+    glUniform3fv(location, 1, data->a);
+}
+
+void
 physics_tick(void)
 {
-  if (objects_intersect(1,2)) {
-    info("Objects 1 and 2 intersect.\n");
-  } else {
-    info("Objects 1 and 2 do not intersect.\n");
-  }
+//  if (objects_intersect(1,2)) {
+//    info("Objects 1 and 2 intersect.\n");
+//  } else {
+//    info("Objects 1 and 2 do not intersect.\n");
+//  }
 }
 
 void

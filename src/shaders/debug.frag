@@ -1,8 +1,10 @@
 #version 330 core
 out vec4 color_frag;
 
+uniform vec3 color_border;
+
 void
 main()
 {
-  color_frag = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+  color_frag = vec4(color_border, 1.0f);
 }

@@ -20,6 +20,7 @@
 #define SIZE_EVENT_QUEUE 512
 #define M_PI 3.14159265358979323846
 #define UNIFORM_NAME_MVP "mvp"
+#define UNIFORM_NAME_COLOR_BORDER "color_border"
 #define NUM_RENDER_OBJECTS 512
 
 /* Macros
@@ -155,6 +156,9 @@ program_use(GLuint id_program);
 
 void
 program_bind_mat4fv(GLuint id_program, const char * uniform, struct m4 * data);
+
+void
+program_bind_3fv(GLuint id_program, const char * uniform, struct v3 * data);
 
 void
 init_environment(void);
