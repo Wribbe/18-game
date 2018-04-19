@@ -109,10 +109,11 @@ struct bound_square {
  * --------------------- */
 
 extern GLFWwindow * current_window;
-extern GLuint shader_program_current;
 extern GLuint shader_program_debug;
 extern GLuint shader_program_default;
 extern struct m4 m4_mvp;
+extern struct m4 m4_view;
+extern struct m4 m4_projection;
 extern double delta_time;
 extern struct render_object render_queue[NUM_RENDER_OBJECTS];
 extern GLuint last_render_object;
@@ -224,6 +225,9 @@ v3_invert(struct v3 * v);
 
 struct v3
 v3_cross(struct v3 * a, struct v3 * b);
+
+struct v3
+m4_mul_v3(struct m4 * m, struct v3 * v);
 
 struct v4
 m4_mul_v4(struct m4 * m, struct v4 * v);

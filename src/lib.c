@@ -490,6 +490,11 @@ objects_intersect(GLuint id1, GLuint id2)
   struct bound_square sq2 = bound_square_get(obj2);
 
   for (size_t i=0; i<COUNT(sq1.points); i++) {
+    sq1.points[i] = m4_mul_v3(&obj1->m4_model, &sq1.points[i]);
+    sq2.points[i] = m4_mul_v3(&obj2->m4_model, &sq2.points[i]);
+  }
+
+  for (size_t i=0; i<COUNT(sq1.points); i++) {
     for (size_t j=1; j<COUNT(sq2.points); j++) {
       if (v3_between(&sq1.points[i], &sq2.points[j-1], &sq2.points[j])) {
         return true;
@@ -499,11 +504,14 @@ objects_intersect(GLuint id1, GLuint id2)
   return false;
 }
 
+GLuint vbo_debug = 0;
+GLuint ebo_debug = 0;
 
 size_t
 debug_buffers_feed(struct render_object * obj)
 {
   struct bound_square bound_square = bound_square_get(obj);
+
   GLuint indices[] = {
     0, 1,
     0, 2,
@@ -513,8 +521,6 @@ debug_buffers_feed(struct render_object * obj)
 
   if (!vao_debug) {
     /* Generate all buffers/vertex Arrays. */
-    GLuint vbo_debug = 0;
-    GLuint ebo_debug = 0;
     glGenVertexArrays(1, &vao_debug);
     glGenBuffers(1, &vbo_debug);
     glGenBuffers(1, &ebo_debug);
@@ -529,14 +535,14 @@ debug_buffers_feed(struct render_object * obj)
     /* Set up vertex attributes. */
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat), 0);
     glEnableVertexAttribArray(0);
-    /* Unbind everything, unbind array first. */
-    glBindVertexArray(0);
+    /* Unbind everything, order of ELEMENT matters, but not ARRAY! */
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   } else {
-    glBindVertexArray(vao_debug);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(bound_square), 0);
-    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_debug);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(bound_square), &bound_square);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
   }
   return COUNT(indices);
 }
@@ -551,24 +557,32 @@ debug_print_bounding_squares(struct render_object * obj)
 }
 
 void
+draw_object(GLuint id)
+{
+  struct render_object * obj = &render_queue[id];
+  m4_mvp = m4_mvp_calculate(&obj->m4_model);
+  program_use(shader_program_default);
+  draw_arrays(obj->render_type, &obj->vao);
+  if (b_debug_print_bounding_squares) {
+    program_use(shader_program_debug);
+    debug_print_bounding_squares(obj);
+  }
+}
+
+void
 draw_objects(void)
 {
-  for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
-    struct render_object * obj = &render_queue[i];
-    m4_mvp = m4_mvp_calculate(&obj->m4_model);
-    program_use(shader_program_default);
-    draw_arrays(obj->render_type, &obj->vao);
-    if (b_debug_print_bounding_squares) {
-      program_use(shader_program_debug);
-      debug_print_bounding_squares(obj);
+  for (GLuint i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
+    if (i != id_object_player) {
+      draw_object(i);
     }
   }
+  draw_object(id_object_player);
 }
 
 void
 program_use(GLuint id_program)
 {
-  shader_program_current = id_program;
   glUseProgram(id_program);
   program_bind_mat4fv(id_program, UNIFORM_NAME_MVP, &m4_mvp);
 }

@@ -128,6 +128,15 @@ m4_mul_v4(struct m4 * m, struct v4 * v)
   return r;
 }
 
+struct v3
+m4_mul_v3(struct m4 * m, struct v3 * v)
+{
+  struct v4 t = {{{v->x, v->y, v->z, 1.0f}}};
+  struct v4 r = m4_mul_v4(m, &t);
+
+  return (struct v3){{{r.x, r.y, r.z}}};
+}
+
 struct m4
 m4_perspective(GLfloat fov_y, GLfloat aspect, GLfloat near, GLfloat far)
 {
