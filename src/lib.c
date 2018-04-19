@@ -2,9 +2,9 @@
 /* External definitions
  * -------------------- */
 
-GLuint shader_program_current = 0;
-GLuint shader_program_debug = 0;
-GLuint shader_program_default = 0;
+GLuint program_shader_current = 0;
+GLuint program_shader_debug = 0;
+GLuint program_shader_default = 0;
 struct render_object render_queue[NUM_RENDER_OBJECTS] = {0};
 #define FIRST_RENDER_OBJECT 1 /* 0 reserved for error. */
 GLuint last_render_object = FIRST_RENDER_OBJECT;
@@ -96,7 +96,7 @@ init_environment(void)
   clock_init();
 
   /* Create debug shader program. */
-  shader_program_debug = shader_program_create(
+  program_shader_debug = program_shader_create(
       "src/shaders/default.vert",
       "src/shaders/debug.frag");
 }
@@ -259,7 +259,7 @@ file_read_floats(const char * filepath, size_t * num_floats)
 }
 
 GLuint
-shader_program_create(const char * path_vertex, const char * path_fragment)
+program_shader_create(const char * path_vertex, const char * path_fragment)
 {
 
   /* Set up buffer for reporting any shader compilation and program linking
@@ -562,10 +562,10 @@ draw_object(GLuint id)
 {
   struct render_object * obj = &render_queue[id];
   m4_mvp = m4_mvp_calculate(&obj->m4_model);
-  program_use(shader_program_default);
+  program_use(program_shader_default);
   draw_arrays(obj->render_type, &obj->vao);
   if (b_debug_draw_bounding_squares) {
-    program_use(shader_program_debug);
+    program_use(program_shader_debug);
     debug_draw_bounding_squares(obj);
   }
 }
@@ -587,7 +587,7 @@ struct v3 COLOR_GREEN = {{{0.0f, 1.0f, 0.0f}}};
 void
 debug_program_set_border_color(struct v3 * color)
 {
-  program_bind_3fv(shader_program_debug, UNIFORM_NAME_COLOR_BORDER, color);
+  program_bind_3fv(program_shader_debug, UNIFORM_NAME_COLOR_BORDER, color);
 }
 
 void

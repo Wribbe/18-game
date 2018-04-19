@@ -110,8 +110,8 @@ struct bound_square {
  * --------------------- */
 
 extern GLFWwindow * current_window;
-extern GLuint shader_program_debug;
-extern GLuint shader_program_default;
+extern GLuint program_shader_debug;
+extern GLuint program_shader_default;
 extern struct m4 m4_mvp;
 extern struct m4 m4_view;
 extern struct m4 m4_projection;
@@ -140,7 +140,7 @@ GLfloat *
 file_read_floats(const char * filepath, size_t * num_floats);
 
 GLuint
-shader_program_create(const char * path_vertex, const char * path_fragment);
+program_shader_create(const char * path_vertex, const char * path_fragment);
 
 struct vao
 buffer_create(GLfloat * floats, size_t num_floats);
