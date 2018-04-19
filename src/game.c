@@ -24,11 +24,24 @@ int main(void)
   GLfloat * floats = file_read_floats("data/basic_triangle.txt",
       &num_floats);
 
-  GLuint id1 = render_object_create(floats, num_floats);
-  set_as_player(id1);
+  struct v3 translations[] = {
+    {{{0.0f, 0.0f, 0.0f}}},
+    {{{1.0f, 0.0f, 0.0f}}},
+    {{{0.0f, 1.0f, 0.0f}}},
+    {{{-1.0f, -1.0f, 0.0f}}},
+    {{{-2.0f, 0.0f, 0.0f}}},
+    {{{1.0f, 1.0f, 0.0f}}},
+  };
 
-  GLuint id2 = render_object_create(floats, num_floats);
-  object_translate(id2, &(struct v3){{{0.3f, 0.3f, 0.0f}}});
+  size_t num_objects = 5;
+  GLuint objects[num_objects];
+  for (size_t i=0; i<num_objects; i++) {
+    objects[i] = render_object_create(floats, num_floats);
+    object_translate(objects[i], &translations[i]);
+  }
+
+  set_as_player(objects[4]);
+
   program_use(program_shader_default);
 
   /* Loop until the user closes the window */
