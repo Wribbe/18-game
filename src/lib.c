@@ -14,7 +14,7 @@ GLuint id_object_player = 0;
 /* DEBUG globals
  * ----------------- */
 
-bool b_debug_print_bounding_squares = true;
+bool b_debug_draw_bounding_squares = true;
 
 /* Information output functions.
  * ----------------------------- */
@@ -548,7 +548,7 @@ debug_buffers_feed(struct render_object * obj)
 }
 
 void
-debug_print_bounding_squares(struct render_object * obj)
+debug_draw_bounding_squares(struct render_object * obj)
 {
   size_t num_points = debug_buffers_feed(obj);
   glBindVertexArray(vao_debug);
@@ -563,9 +563,9 @@ draw_object(GLuint id)
   m4_mvp = m4_mvp_calculate(&obj->m4_model);
   program_use(shader_program_default);
   draw_arrays(obj->render_type, &obj->vao);
-  if (b_debug_print_bounding_squares) {
+  if (b_debug_draw_bounding_squares) {
     program_use(shader_program_debug);
-    debug_print_bounding_squares(obj);
+    debug_draw_bounding_squares(obj);
   }
 }
 

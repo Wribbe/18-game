@@ -124,7 +124,7 @@ extern GLuint id_object_player;
 /* DEBUG globals
  * ----------------- */
 
-extern bool b_debug_print_bounding_squares;
+extern bool b_debug_draw_bounding_squares;
 
 /* Lib functions.
  * -------------- */
