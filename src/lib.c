@@ -42,63 +42,63 @@ info(const char * fmt, ...)
 GLFWwindow *
 init_window(size_t width, size_t height, const char * title)
 {
-    if (!glfwInit()) {
-      error("Failed to initialize GLFW.\n");
-      return NULL;
-    }
+  if (!glfwInit()) {
+    error("Failed to initialize GLFW.\n");
+    return NULL;
+  }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow * window = glfwCreateWindow(width, height, title, NULL, NULL);
+  GLFWwindow * window = glfwCreateWindow(width, height, title, NULL, NULL);
 
-    if (window == NULL) {
-      error("Failed to create window.\n");
-      return NULL;
-    }
+  if (window == NULL) {
+    error("Failed to create window.\n");
+    return NULL;
+  }
 
-    glfwMakeContextCurrent(window);
-    if (gl3wInit()) {
-      error("Failed to initialize OpenGL (gl3w).\n");
-      return NULL;
-    }
+  glfwMakeContextCurrent(window);
+  if (gl3wInit()) {
+    error("Failed to initialize OpenGL (gl3w).\n");
+    return NULL;
+  }
 
-    /* Initialize the library */
-    if (!glfwInit()) {
-      error("Failed to initialize glfw.\n");
-      return NULL;
-    }
+  /* Initialize the library */
+  if (!glfwInit()) {
+    error("Failed to initialize glfw.\n");
+    return NULL;
+  }
 
-    info("OpenGL %s, GLSL %s\n", glGetString(GL_VERSION),
-        glGetString(GL_SHADING_LANGUAGE_VERSION));
+  info("OpenGL %s, GLSL %s\n", glGetString(GL_VERSION),
+      glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-    glfwSetKeyCallback(window, callback_key);
-    glfwSetCursorPosCallback(window, callback_cursor_position);
-    current_window = window;
+  glfwSetKeyCallback(window, callback_key);
+  glfwSetCursorPosCallback(window, callback_cursor_position);
+  current_window = window;
 
-    /* Grab mouse pointer. */
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  /* Grab mouse pointer. */
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    /* Set mouse button callback function. */
-    glfwSetMouseButtonCallback(window, callback_mouse_key);
+  /* Set mouse button callback function. */
+  glfwSetMouseButtonCallback(window, callback_mouse_key);
 
-    return window;
+  return window;
 }
 
 void
 init_environment(void)
 {
-    /* Initialize camera system. */
-    camera_system_init();
+  /* Initialize camera system. */
+  camera_system_init();
 
-    /* Initialize time delta clock. */
-    clock_init();
+  /* Initialize time delta clock. */
+  clock_init();
 
-    /* Create debug shader program. */
-    shader_program_debug = shader_program_create(
-        "src/shaders/default.vert",
-        "src/shaders/debug.frag");
+  /* Create debug shader program. */
+  shader_program_debug = shader_program_create(
+      "src/shaders/default.vert",
+      "src/shaders/debug.frag");
 }
 
 char *
@@ -161,8 +161,9 @@ eat_comment(char * c, char const * string_end)
           }
         }
       }
+    }
     /* Single line comment. */
-    } else if (next == '/') {
+    else if (next == '/') {
       /* Advance past comment part as previously. */
       c += 2;
       /* Keep on going until string_end is hit or there is a newline. */
@@ -599,15 +600,15 @@ program_use(GLuint id_program)
 void
 program_bind_mat4fv(GLuint id_program, const char * uniform, struct m4 * data)
 {
-    GLuint location = glGetUniformLocation(id_program, uniform);
-    glUniformMatrix4fv(location, 1, GL_TRUE, data->m[0]);
+  GLuint location = glGetUniformLocation(id_program, uniform);
+  glUniformMatrix4fv(location, 1, GL_TRUE, data->m[0]);
 }
 
 void
 program_bind_3fv(GLuint id_program, const char * uniform, struct v3 * data)
 {
-    GLuint location = glGetUniformLocation(id_program, uniform);
-    glUniform3fv(location, 1, data->a);
+  GLuint location = glGetUniformLocation(id_program, uniform);
+  glUniform3fv(location, 1, data->a);
 }
 
 void
