@@ -429,7 +429,7 @@ render_object_create(GLfloat * floats, size_t num_floats)
   }
   struct vao vao = buffer_create(floats, num_floats);
   GLuint assigned_id = last_render_object++;
-  struct render_object * obj = &render_queue[assigned_id];
+  struct render_object * obj = get_render_object(assigned_id);
   obj->active = true;
   obj->render_type = GL_TRIANGLES;
   obj->vao = vao;
@@ -487,8 +487,8 @@ objects_intersect(GLuint id1, GLuint id2)
     }
     return false;
   }
-  struct render_object * obj1 = &render_queue[id1];
-  struct render_object * obj2 = &render_queue[id2];
+  struct render_object * obj1 = get_render_object(id1);
+  struct render_object * obj2 = get_render_object(id2);
 
   struct bound_square sq1 = bound_square_get(obj1);
   struct bound_square sq2 = bound_square_get(obj2);
