@@ -100,6 +100,7 @@ struct bound_points {
 
 struct state {
   bool colliding;
+  struct v3 force;
 };
 
 struct render_object {
@@ -270,5 +271,8 @@ create_cube(struct v3 * p1, struct v3 * p2, struct v3 * p3);
 
 GLint
 object_translate(GLuint id, struct v3 * v);
+
+void
+object_add_force(GLuint id, struct v3 * v);
 
 #endif

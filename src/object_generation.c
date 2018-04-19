@@ -19,3 +19,10 @@ object_translate(GLuint id, struct v3 * v)
 
   return 0;
 }
+
+void
+object_add_force(GLuint id, struct v3 * v)
+{
+  struct render_object * obj = get_render_object(id);
+  obj->state.force = v3_add(&obj->state.force, v);
+}

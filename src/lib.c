@@ -657,8 +657,19 @@ objects_set_colliding(GLuint id1, GLuint id2, bool value)
 }
 
 void
+advance_objects(void)
+{
+  for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
+    struct render_object * obj = get_render_object(i);
+    object_translate(i, &obj->state.force);
+    obj->state.force = (struct v3){{{0.0f, 0.0f, 0.0f}}};
+  }
+}
+
+void
 physics_tick(void)
 {
+  advance_objects();
   for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
     if (i != id_object_player) {
       if (objects_intersect(id_object_player, i)) {

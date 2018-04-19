@@ -178,33 +178,33 @@ camera_go_right(void)
 void
 player_go_right(double delta_speed_player)
 {
-  struct v3 translation = v3_mulf(delta_speed_player,
+  struct v3 force = v3_mulf(delta_speed_player,
       &(struct v3){{{1.0f, 0.0f, 0.0f}}});
-  object_translate(id_object_player, &translation);
+  object_translate(id_object_player, &force);
 }
 
 void
 player_go_left(double delta_speed_player)
 {
-  struct v3 translation = v3_mulf(delta_speed_player,
+  struct v3 force = v3_mulf(delta_speed_player,
       &(struct v3){{{-1.0f, 0.0f, 0.0f}}});
-  object_translate(id_object_player, &translation);
+  object_add_force(id_object_player, &force);
 }
 
 void
 player_go_up(double delta_speed_player)
 {
-  struct v3 translation = v3_mulf(delta_speed_player,
+  struct v3 force = v3_mulf(delta_speed_player,
       &(struct v3){{{0.0f, 1.0f, 0.0f}}});
-  object_translate(id_object_player, &translation);
+  object_add_force(id_object_player, &force);
 }
 
 void
 player_go_down(double delta_speed_player)
 {
-  struct v3 translation = v3_mulf(delta_speed_player,
+  struct v3 force = v3_mulf(delta_speed_player,
       &(struct v3){{{0.0f, -1.0f, 0.0f}}});
-  object_translate(id_object_player, &translation);
+  object_add_force(id_object_player, &force);
 }
 
 void
