@@ -11,6 +11,9 @@ GLuint last_render_object = FIRST_RENDER_OBJECT;
 GLuint vao_debug = 0;
 GLuint id_object_player = 0;
 
+struct v3 COLOR_RED = {{{1.0f, 0.0f, 0.0f}}};
+struct v3 COLOR_GREEN = {{{0.0f, 1.0f, 0.0f}}};
+
 /* DEBUG globals
  * ----------------- */
 
@@ -558,16 +561,44 @@ debug_draw_bounding_squares(struct render_object * obj)
 }
 
 void
+object_state_clear(GLuint id)
+{
+  struct render_object * obj = get_render_object(id);
+  obj->state.colliding = false;
+}
+
+bool
+object_state(GLuint id, enum obj_state state)
+{
+  struct render_object * obj = get_render_object(id);
+  switch (state) {
+    case OBJ_STATE_COLLISION:
+      return obj->state.colliding;
+      break;
+    default:
+      return false;
+      break;
+  }
+}
+
+
+void
 draw_object(GLuint id)
 {
-  struct render_object * obj = &render_queue[id];
+  struct render_object * obj = get_render_object(id);
   m4_mvp = m4_mvp_calculate(&obj->m4_model);
   program_use(program_shader_default);
   draw_arrays(obj->render_type, &obj->vao);
   if (b_debug_draw_bounding_squares) {
     program_use(program_shader_debug);
+    if (object_state(id, OBJ_STATE_COLLISION)) {
+      debug_program_set_border_color(&COLOR_RED);
+    } else {
+      debug_program_set_border_color(&COLOR_GREEN);
+    }
     debug_draw_bounding_squares(obj);
   }
+  object_state_clear(id);
 }
 
 void
@@ -580,9 +611,6 @@ draw_objects(void)
   }
   draw_object(id_object_player);
 }
-
-struct v3 COLOR_RED = {{{1.0f, 0.0f, 0.0f}}};
-struct v3 COLOR_GREEN = {{{0.0f, 1.0f, 0.0f}}};
 
 void
 debug_program_set_border_color(struct v3 * color)
@@ -611,9 +639,33 @@ program_bind_3fv(GLuint id_program, const char * uniform, struct v3 * data)
   glUniform3fv(location, 1, data->a);
 }
 
+struct render_object *
+get_render_object(GLuint id)
+{
+  if (INVALID_OBJECT_ID(id)) {
+    error("get_render_object received invalid object id: %u\n", id);
+    return NULL;
+  }
+  return &render_queue[id];
+}
+
+void
+objects_set_colliding(GLuint id1, GLuint id2, bool value)
+{
+  get_render_object(id1)->state.colliding = value;
+  get_render_object(id2)->state.colliding = value;
+}
+
 void
 physics_tick(void)
 {
+  for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
+    if (i != id_object_player) {
+      if (objects_intersect(id_object_player, i)) {
+        objects_set_colliding(id_object_player, i, true);
+      }
+    }
+  }
   if (objects_intersect(1,2)) {
     debug_program_set_border_color(&COLOR_RED);
   } else {

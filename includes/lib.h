@@ -23,6 +23,10 @@
 #define UNIFORM_NAME_COLOR_BORDER "color_border"
 #define NUM_RENDER_OBJECTS 512
 
+enum obj_state {
+  OBJ_STATE_COLLISION,
+};
+
 /* Macros
  * ------ */
 #define UNUSED(x) (void)x
@@ -94,12 +98,17 @@ struct bound_points {
   struct v3 bottom_right;
 };
 
+struct state {
+  bool colliding;
+};
+
 struct render_object {
   bool active;
   GLuint render_type;
   struct vao vao;
   struct m4 m4_model;
   struct bound_points bound_points;
+  struct state state;
 };
 
 struct bound_square {
@@ -168,6 +177,12 @@ physics_tick(void);
 
 void
 set_as_player(GLuint object_id);
+
+struct render_object *
+get_render_object(GLuint id);
+
+void
+debug_program_set_border_color(struct v3 * color);
 
 /* input_and_camera.c */
 
