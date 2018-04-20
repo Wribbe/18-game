@@ -115,6 +115,8 @@ struct render_object {
   struct bound_points bound_points;
   struct bound_square bound_square;
   struct bound_square bound_square_model;
+  struct v3 point_middle;
+  struct v3 point_middle_model;
   struct state state;
 };
 
@@ -239,13 +241,25 @@ struct v3
 v3_mul(struct v3 * v1, struct v3 * v2);
 
 GLfloat
+v3_magnitude(struct v3 * v);
+
+GLfloat
 v3_dot(struct v3 * v1, struct v3 * v2);
+
+GLfloat
+v3_angle(struct v3 * v1, struct v3 * v2);
 
 struct v3
 v3_mulf(float f, struct v3 * v);
 
 struct v3
+v3_divf(float f, struct v3 * v);
+
+struct v3
 v3_normalize(struct v3 * v);
+
+struct v3
+v3_abs(struct v3 * v);
 
 struct v3
 v3_invert(struct v3 * v);

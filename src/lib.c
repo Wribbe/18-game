@@ -382,6 +382,22 @@ buffer_create(GLfloat * floats, size_t num_floats)
   return vao;
 }
 
+struct v3
+make_point_middle(struct render_object * obj)
+{
+  struct v3 top_left = obj->bound_points.top_left;
+  struct v3 point_diff = v3_sub(&top_left, &obj->bound_points.bottom_right);
+  point_diff = v3_abs(&point_diff);
+  GLfloat mid_width = 0.5 * point_diff.x;
+  GLfloat mid_height = 0.5 * point_diff.y;
+  GLfloat mid_depth = 0.5 * point_diff.z;
+  return (struct v3){{{
+    top_left.x + mid_width,
+    top_left.y - mid_height,
+    top_left.z - mid_depth,
+  }}};
+}
+
 struct bound_points
 make_bound_points(GLfloat * floats, size_t num_floats, struct vao * vao)
 {
@@ -415,8 +431,8 @@ make_bound_points(GLfloat * floats, size_t num_floats, struct vao * vao)
   }
 
   return (struct bound_points) {
-    {{{max_x, max_y, max_z}}},
-    {{{min_x, min_y, min_z}}},
+    {{{min_x, max_y, max_z}}},
+    {{{max_x, min_y, min_z}}},
   };
 }
 
@@ -436,6 +452,7 @@ render_object_create(GLfloat * floats, size_t num_floats)
   obj->m4_model = m4_identity();
 
   obj->bound_points = make_bound_points(floats, num_floats, &vao);
+  obj->point_middle = make_point_middle(obj);
 
   return assigned_id;
 }
@@ -665,6 +682,8 @@ advance_object(GLuint id)
     bounds_model->points[i] = m4_mul_v3(&obj->m4_model,
         &bounds_model->points[i]);
   }
+  obj->point_middle_model = m4_mul_v3(&obj->m4_model,
+      &obj->point_middle);
 }
 
 void
@@ -680,6 +699,14 @@ object_repel(GLuint id_actor, GLuint id_target)
 {
   struct render_object * actor = get_render_object(id_actor);
   struct render_object * target = get_render_object(id_target);
+
+  struct v3 target_vector = v3_sub(&target->point_middle_model,
+      &actor->point_middle_model);
+
+  struct v3 right = {{{1.0f, 0.0f, 0.0f}}};
+  GLfloat target_angle = v3_angle(&target_vector, &right);
+
+  printf("Target angle: %.2f\n", target_angle);
 }
 
 void
