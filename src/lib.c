@@ -475,32 +475,38 @@ v3_between(struct v3 * check, struct v3 * a, struct v3 * b)
   return true;
 }
 
-bool
-objects_intersect(GLuint id1, GLuint id2)
+void
+objects_set_colliding(GLuint id1, GLuint id2, bool value)
 {
-  if (INVALID_OBJECT_ID(id1) || INVALID_OBJECT_ID(id2)) {
-    if (INVALID_OBJECT_ID(id1)) {
-      error("objects_intersect got invalid id1: %u\n", id1);
-    }
-    if (INVALID_OBJECT_ID(id2)) {
-      error("objects_intersect got invalid id2: %u\n", id2);
-    }
+  get_render_object(id1)->state.colliding = value;
+  get_render_object(id2)->state.colliding = value;
+}
+
+
+bool
+object_intersects_player(GLuint id)
+{
+  if (INVALID_OBJECT_ID(id)) {
+    error("object_intersects_player got invalid id: %u\n", id);
     return false;
   }
-  struct render_object * obj1 = get_render_object(id1);
-  struct render_object * obj2 = get_render_object(id2);
 
-  struct bound_square sq1 = bound_square_get(obj1);
-  struct bound_square sq2 = bound_square_get(obj2);
+  struct render_object * obj = get_render_object(id);
+  struct render_object * player = get_render_object(id_object_player);
 
-  for (size_t i=0; i<COUNT(sq1.points); i++) {
-    sq1.points[i] = m4_mul_v3(&obj1->m4_model, &sq1.points[i]);
-    sq2.points[i] = m4_mul_v3(&obj2->m4_model, &sq2.points[i]);
+  struct bound_square bounds_obj = bound_square_get(obj);
+  struct bound_square bounds_player = bound_square_get(player);
+
+  for (size_t i=0; i<COUNT(bounds_player.points); i++) {
+    bounds_obj.points[i] = m4_mul_v3(&obj->m4_model, &bounds_obj.points[i]);
+    bounds_player.points[i] = m4_mul_v3(&player->m4_model,
+        &bounds_player.points[i]);
   }
 
-  for (size_t i=0; i<COUNT(sq1.points); i++) {
-    for (size_t j=1; j<COUNT(sq2.points); j++) {
-      if (v3_between(&sq1.points[i], &sq2.points[j-1], &sq2.points[j])) {
+  for (size_t i=0; i<COUNT(bounds_player.points); i++) {
+    for (size_t j=1; j<COUNT(bounds_obj.points); j++) {
+      if (v3_between(&bounds_player.points[i], &bounds_obj.points[j-1], &bounds_obj.points[j])) {
+        objects_set_colliding(id_object_player, id, true);
         return true;
       }
     }
@@ -650,19 +656,44 @@ get_render_object(GLuint id)
 }
 
 void
-objects_set_colliding(GLuint id1, GLuint id2, bool value)
+advance_object(GLuint id)
 {
-  get_render_object(id1)->state.colliding = value;
-  get_render_object(id2)->state.colliding = value;
+  struct render_object * obj = get_render_object(id);
+  object_translate(id, &obj->state.force);
 }
 
 void
 advance_objects(void)
 {
   for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
-    struct render_object * obj = get_render_object(i);
-    object_translate(i, &obj->state.force);
-    obj->state.force = (struct v3){{{0.0f, 0.0f, 0.0f}}};
+    advance_object(i);
+  }
+}
+
+void
+object_repel(struct render_object * actor, struct render_object * target)
+{
+}
+
+void
+resolve_collisions(void)
+{
+  for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
+    if (i != id_object_player) {
+      if (object_intersects_player(i)) {
+//        if (intesection) {
+//          struct side * closest_side = get_closest_side(b_obj, p);
+//          object_repel(obj, player);
+      }
+    }
+  }
+}
+
+void
+reset_forces(void)
+{
+  for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
+    get_render_object(i)->state.force = (struct v3){{{0.0f, 0.0f, 0.0f}}};
   }
 }
 
@@ -670,13 +701,8 @@ void
 physics_tick(void)
 {
   advance_objects();
-  for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
-    if (i != id_object_player) {
-      if (objects_intersect(id_object_player, i)) {
-        objects_set_colliding(id_object_player, i, true);
-      }
-    }
-  }
+  resolve_collisions();
+  reset_forces();
 }
 
 void

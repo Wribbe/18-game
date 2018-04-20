@@ -112,6 +112,10 @@ struct render_object {
   struct state state;
 };
 
+struct side {
+  struct v3 p[2];
+};
+
 struct bound_square {
   struct v3 points[4];
 };
