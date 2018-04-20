@@ -240,6 +240,9 @@ v3_add(struct v3 * v1, struct v3 * v2);
 struct v3
 v3_mul(struct v3 * v1, struct v3 * v2);
 
+void
+v3_copy(struct v3 * vd, struct v3 * vs);
+
 GLfloat
 v3_magnitude(struct v3 * v);
 

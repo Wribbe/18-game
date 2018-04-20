@@ -481,13 +481,25 @@ get_bound_square(struct render_object * obj)
 #define V3_OUTSIDE(v,i,comp,a,b) (v->i comp a->i && v->i comp b->i)
 
 bool
-v3_between(struct v3 * check, struct v3 * a, struct v3 * b)
+v3_between(struct v3 * check, struct v3 * a, struct v3 * b,
+    struct v3 * penetration_vector)
 {
   if (V3_OUTSIDE(check,x,<,a,b) || V3_OUTSIDE(check,x,>,a,b)) {
     return false;
   }
   if (V3_OUTSIDE(check,y,<,a,b) || V3_OUTSIDE(check,y,>,a,b)) {
     return false;
+  }
+  struct v3 v_a_to_check = v3_sub(check, a);
+  struct v3 v_b_to_check = v3_sub(check, b);
+
+  v_a_to_check = v3_abs(&v_a_to_check);
+  v_b_to_check = v3_abs(&v_b_to_check);
+
+  if (v3_magnitude(&v_a_to_check) < v3_magnitude(&v_b_to_check)) {
+    v3_copy(penetration_vector, &v_a_to_check);
+  } else {
+    v3_copy(penetration_vector, &v_b_to_check);
   }
   return true;
 }
@@ -501,7 +513,7 @@ objects_set_colliding(GLuint id1, GLuint id2, bool value)
 
 
 bool
-object_intersects_player(GLuint id)
+object_intersects_player(GLuint id, struct v3 * penetration_vector)
 {
   if (INVALID_OBJECT_ID(id)) {
     error("object_intersects_player got invalid id: %u\n", id);
@@ -515,10 +527,14 @@ object_intersects_player(GLuint id)
 
   for (size_t i=0; i<COUNT(bounds_player.points); i++) {
     for (size_t j=1; j<COUNT(bounds_obj.points); j++) {
-      if (v3_between(&bounds_player.points[i], &bounds_obj.points[j-1],
-            &bounds_obj.points[j]) ||
-          v3_between(&bounds_obj.points[i], &bounds_player.points[j-1],
-            &bounds_player.points[j])) {
+      if (v3_between(
+            &bounds_player.points[i], &bounds_obj.points[j-1],
+            &bounds_obj.points[j], penetration_vector)
+          ||
+          v3_between(
+            &bounds_obj.points[i], &bounds_player.points[j-1],
+            &bounds_player.points[j], penetration_vector))
+      {
         objects_set_colliding(id_object_player, id, true);
         return true;
       }
@@ -695,7 +711,7 @@ advance_objects(void)
 }
 
 void
-object_repel(GLuint id_actor, GLuint id_target)
+object_repel(GLuint id_actor, GLuint id_target, struct v3 * penetration_vector)
 {
   struct render_object * actor = get_render_object(id_actor);
   struct render_object * target = get_render_object(id_target);
@@ -705,16 +721,22 @@ object_repel(GLuint id_actor, GLuint id_target)
 
   struct v3 right = {{{1.0f, 0.0f, 0.0f}}};
   GLfloat target_angle = v3_angle(&target_vector, &right);
-
-  printf("Target angle: %.2f\n", target_angle);
+  if (target_angle > -M_PI/2 && target_angle < M_PI/2) {
+    printf("PUSHING!\n");
+    target->state.force.x = 0;
+    object_add_force(id_target, &(struct v3){{{penetration_vector->x, 0.0f,
+        0.0f}}});
+    advance_object(id_target);
+  }
 }
 
 void
 resolve_collisions(void)
 {
   for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
-    if (i != id_object_player && object_intersects_player(i)) {
-      object_repel(i, id_object_player);
+    struct v3 penetration_vector = {0};
+    if (i != id_object_player && object_intersects_player(i, &penetration_vector)) {
+      object_repel(i, id_object_player, &penetration_vector);
     }
   }
 }

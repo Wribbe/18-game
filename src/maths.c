@@ -69,6 +69,14 @@ v3_mul(struct v3 * v1, struct v3 * v2)
   }}};
 }
 
+void
+v3_copy(struct v3 * vd, struct v3 * vs)
+{
+  vd->x = vs->x;
+  vd->y = vs->y;
+  vd->z = vs->z;
+}
+
 GLfloat
 v3_magnitude(struct v3 * v)
 {
@@ -87,7 +95,7 @@ v3_angle(struct v3 * v1, struct v3 * v2)
   GLfloat angle = acosf(v3_dot(v1, v2)/(v3_magnitude(v1)*v3_magnitude(v2)));
   struct v3 add = v3_add(v2, v1);
   if (add.y < 0) {
-    angle = M_PI + (M_PI - angle);
+    angle *= -1;
   }
   return angle;
 }

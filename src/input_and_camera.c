@@ -181,7 +181,7 @@ player_go_right(double delta_speed_player)
 {
   struct v3 force = v3_mulf(delta_speed_player,
       &(struct v3){{{1.0f, 0.0f, 0.0f}}});
-  object_translate(id_object_player, &force);
+  object_add_force(id_object_player, &force);
 }
 
 void
