@@ -131,8 +131,9 @@ m4_view_calculate(void)
   struct v3 d = camera_direction;
   struct v3 p = camera_position;
 
+  //TODO: Why does the r.x need to be negated to make sense?
   m4_view = (struct m4){{
-    { r.x,  r.y,  r.z, -v3_dot(&r, &p)},
+    {-r.x,  r.y,  r.z, -v3_dot(&r, &p)},
     { u.x,  u.y,  u.z, -v3_dot(&u, &p)},
     { d.x,  d.y,  d.z, -v3_dot(&d, &p)},
     {   0,    0,    0,  1},
