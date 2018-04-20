@@ -449,7 +449,7 @@ draw_arrays(GLenum type, struct vao * vao)
 }
 
 struct bound_square
-bound_square_get(struct render_object * obj)
+get_bound_square(struct render_object * obj)
 {
   struct v3 * top_left = &obj->bound_points.top_left;
   struct v3 * bottom_right = &obj->bound_points.bottom_right;
@@ -491,17 +491,10 @@ object_intersects_player(GLuint id)
     return false;
   }
 
-  struct render_object * obj = get_render_object(id);
-  struct render_object * player = get_render_object(id_object_player);
-
-  struct bound_square bounds_obj = bound_square_get(obj);
-  struct bound_square bounds_player = bound_square_get(player);
-
-  for (size_t i=0; i<COUNT(bounds_player.points); i++) {
-    bounds_obj.points[i] = m4_mul_v3(&obj->m4_model, &bounds_obj.points[i]);
-    bounds_player.points[i] = m4_mul_v3(&player->m4_model,
-        &bounds_player.points[i]);
-  }
+  struct bound_square bounds_obj =
+    get_render_object(id)->bound_square_model;
+  struct bound_square bounds_player =
+    get_render_object(id_object_player)->bound_square_model;
 
   for (size_t i=0; i<COUNT(bounds_player.points); i++) {
     for (size_t j=1; j<COUNT(bounds_obj.points); j++) {
@@ -523,7 +516,7 @@ GLuint ebo_debug = 0;
 size_t
 debug_buffers_feed(struct render_object * obj)
 {
-  struct bound_square bound_square = bound_square_get(obj);
+  struct bound_square bound_square = get_bound_square(obj);
 
   GLuint indices[] = {
     0, 1,
@@ -663,6 +656,15 @@ advance_object(GLuint id)
 {
   struct render_object * obj = get_render_object(id);
   object_translate(id, &obj->state.force);
+
+  obj->bound_square = get_bound_square(obj);
+  obj->bound_square_model = obj->bound_square;
+  struct bound_square * bounds_model = &obj->bound_square_model;
+
+  for (size_t i=0; i<COUNT(bounds_model->points); i++) {
+    bounds_model->points[i] = m4_mul_v3(&obj->m4_model,
+        &bounds_model->points[i]);
+  }
 }
 
 void
@@ -674,20 +676,18 @@ advance_objects(void)
 }
 
 void
-object_repel(struct render_object * actor, struct render_object * target)
+object_repel(GLuint id_actor, GLuint id_target)
 {
+  struct render_object * actor = get_render_object(id_actor);
+  struct render_object * target = get_render_object(id_target);
 }
 
 void
 resolve_collisions(void)
 {
   for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
-    if (i != id_object_player) {
-      if (object_intersects_player(i)) {
-//        if (intesection) {
-//          struct side * closest_side = get_closest_side(b_obj, p);
-//          object_repel(obj, player);
-      }
+    if (i != id_object_player && object_intersects_player(i)) {
+      object_repel(i, id_object_player);
     }
   }
 }

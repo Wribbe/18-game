@@ -103,21 +103,24 @@ struct state {
   struct v3 force;
 };
 
+struct bound_square {
+  struct v3 points[4];
+};
+
 struct render_object {
   bool active;
   GLuint render_type;
   struct vao vao;
   struct m4 m4_model;
   struct bound_points bound_points;
+  struct bound_square bound_square;
+  struct bound_square bound_square_model;
   struct state state;
 };
 
 struct side {
   struct v3 p[2];
-};
-
-struct bound_square {
-  struct v3 points[4];
+  struct v3 normal;
 };
 
 /* External definitions.
