@@ -505,7 +505,10 @@ object_intersects_player(GLuint id)
 
   for (size_t i=0; i<COUNT(bounds_player.points); i++) {
     for (size_t j=1; j<COUNT(bounds_obj.points); j++) {
-      if (v3_between(&bounds_player.points[i], &bounds_obj.points[j-1], &bounds_obj.points[j])) {
+      if (v3_between(&bounds_player.points[i], &bounds_obj.points[j-1],
+            &bounds_obj.points[j]) ||
+          v3_between(&bounds_obj.points[i], &bounds_player.points[j-1],
+            &bounds_player.points[j])) {
         objects_set_colliding(id_object_player, id, true);
         return true;
       }

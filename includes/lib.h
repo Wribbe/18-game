@@ -273,8 +273,11 @@ m4_identity(void);
 void
 create_cube(struct v3 * p1, struct v3 * p2, struct v3 * p3);
 
-GLint
+void
 object_translate(GLuint id, struct v3 * v);
+
+void
+object_scale(GLuint id, struct v3 * v);
 
 void
 object_add_force(GLuint id, struct v3 * v);
