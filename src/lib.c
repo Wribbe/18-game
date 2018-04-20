@@ -677,11 +677,6 @@ physics_tick(void)
       }
     }
   }
-  if (objects_intersect(1,2)) {
-    debug_program_set_border_color(&COLOR_RED);
-  } else {
-    debug_program_set_border_color(&COLOR_GREEN);
-  }
 }
 
 void
