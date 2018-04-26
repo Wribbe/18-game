@@ -505,9 +505,10 @@ struct v3
 model_apply_x(struct v3 * p, struct render_object * obj)
 {
   struct v3 ret = {0};
-  v3_copy(&ret, p);
   struct v3 part = {0};
-  part.x = p->x;
+  v3_copy(&ret, p);
+  v3_copy(&part, p);
+  ret = m4_mul_v3(&obj->m4_model, &ret);
   part = m4_mul_v3(&obj->m4_model_applied, &part);
   ret.x = part.x;
   return ret;
@@ -517,9 +518,10 @@ struct v3
 model_apply_y(struct v3 * p, struct render_object * obj)
 {
   struct v3 ret = {0};
-  v3_copy(&ret, p);
   struct v3 part = {0};
-  part.y = p->y;
+  v3_copy(&ret, p);
+  v3_copy(&part, p);
+  ret = m4_mul_v3(&obj->m4_model, &ret);
   part = m4_mul_v3(&obj->m4_model_applied, &part);
   ret.y = part.y;
   return ret;
