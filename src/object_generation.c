@@ -12,18 +12,18 @@ void
 object_translate(GLuint id, struct v3 * v)
 {
   struct render_object * obj = get_render_object(id);
-  obj->m4_model.m[0][3] += v->x;
-  obj->m4_model.m[1][3] += v->y;
-  obj->m4_model.m[2][3] += v->z;
+  obj->m4_model_delta.m[0][3] += v->x;
+  obj->m4_model_delta.m[1][3] += v->y;
+  obj->m4_model_delta.m[2][3] += v->z;
 }
 
 void
 object_scale(GLuint id, struct v3 * v)
 {
   struct render_object * obj = get_render_object(id);
-  obj->m4_model.m[0][0] *= v->x;
-  obj->m4_model.m[1][1] *= v->y;
-  obj->m4_model.m[2][2] *= v->z;
+  obj->m4_model_delta.m[0][0] *= v->x;
+  obj->m4_model_delta.m[1][1] *= v->y;
+  obj->m4_model_delta.m[2][2] *= v->z;
 }
 
 void

@@ -450,6 +450,8 @@ render_object_create(GLfloat * floats, size_t num_floats)
   obj->render_type = GL_TRIANGLES;
   obj->vao = vao;
   obj->m4_model = m4_identity();
+  obj->m4_model_delta = m4_identity();
+  obj->m4_model_applied = m4_identity();
 
   obj->bound_points = make_bound_points(floats, num_floats, &vao);
   obj->point_middle = make_point_middle(obj);
@@ -481,25 +483,13 @@ get_bound_square(struct render_object * obj)
 #define V3_OUTSIDE(v,i,comp,a,b) (v->i comp a->i && v->i comp b->i)
 
 bool
-v3_between(struct v3 * check, struct v3 * a, struct v3 * b,
-    struct v3 * penetration_vector)
+v3_between(struct v3 * check, struct v3 * a, struct v3 * b)
 {
   if (V3_OUTSIDE(check,x,<,a,b) || V3_OUTSIDE(check,x,>,a,b)) {
     return false;
   }
   if (V3_OUTSIDE(check,y,<,a,b) || V3_OUTSIDE(check,y,>,a,b)) {
     return false;
-  }
-  struct v3 v_a_to_check = v3_sub(check, a);
-  struct v3 v_b_to_check = v3_sub(check, b);
-
-  v_a_to_check = v3_abs(&v_a_to_check);
-  v_b_to_check = v3_abs(&v_b_to_check);
-
-  if (v3_magnitude(&v_a_to_check) < v3_magnitude(&v_b_to_check)) {
-    v3_copy(penetration_vector, &v_a_to_check);
-  } else {
-    v3_copy(penetration_vector, &v_b_to_check);
   }
   return true;
 }
@@ -511,31 +501,82 @@ objects_set_colliding(GLuint id1, GLuint id2, bool value)
   get_render_object(id2)->state.colliding = value;
 }
 
+struct v3
+model_apply_x(struct v3 * p, struct render_object * obj)
+{
+  struct v3 ret = {0};
+  v3_copy(&ret, p);
+  struct v3 part = {0};
+  part.x = p->x;
+  part = m4_mul_v3(&obj->m4_model_applied, &part);
+  ret.x = part.x;
+  return ret;
+}
+
+struct v3
+model_apply_y(struct v3 * p, struct render_object * obj)
+{
+  struct v3 ret = {0};
+  v3_copy(&ret, p);
+  struct v3 part = {0};
+  part.y = p->y;
+  part = m4_mul_v3(&obj->m4_model_applied, &part);
+  ret.y = part.y;
+  return ret;
+}
+
 
 bool
-object_intersects_player(GLuint id, struct v3 * penetration_vector)
+object_intersects_player(GLuint id, struct info_collision * info_collision)
 {
   if (INVALID_OBJECT_ID(id)) {
     error("object_intersects_player got invalid id: %u\n", id);
     return false;
   }
 
-  struct bound_square bounds_obj =
-    get_render_object(id)->bound_square_model;
-  struct bound_square bounds_player =
-    get_render_object(id_object_player)->bound_square_model;
+  struct render_object * obj_player = get_render_object(id_object_player);
+  struct render_object * obj = get_render_object(id);
+
+  struct bound_square bounds_obj = obj->bound_square_model;
+  struct bound_square bounds_player = obj_player->bound_square_model;
+
+  bool collision = false;
+
+  struct v3 * raw_point_check = NULL;
+  struct render_object * check_object = NULL;
+  struct v3 * point_a = NULL;
+  struct v3 * point_b = NULL;
 
   for (size_t i=0; i<COUNT(bounds_player.points); i++) {
     for (size_t j=1; j<COUNT(bounds_obj.points); j++) {
-      if (v3_between(
-            &bounds_player.points[i], &bounds_obj.points[j-1],
-            &bounds_obj.points[j], penetration_vector)
-          ||
-          v3_between(
-            &bounds_obj.points[i], &bounds_player.points[j-1],
-            &bounds_player.points[j], penetration_vector))
+      if (v3_between(&bounds_player.points[i], &bounds_obj.points[j-1],
+            &bounds_obj.points[j]))
       {
+        raw_point_check = &obj_player->bound_square.points[i];
+        point_a = &bounds_obj.points[j-1];
+        point_b = &bounds_obj.points[j];
+        check_object = obj_player;
+        collision = true;
+      } else if (v3_between(&bounds_obj.points[i], &bounds_player.points[j-1],
+            &bounds_player.points[j]))
+      {
+        raw_point_check = &obj->bound_square.points[i];
+        point_a = &bounds_player.points[j-1];
+        point_b = &bounds_player.points[j];
+        check_object = obj;
+        collision = true;
+      }
+      if (collision) {
         objects_set_colliding(id_object_player, id, true);
+        info_collision->x = true;
+        info_collision->y = true;
+        struct v3 check_applied_x = model_apply_x(raw_point_check, check_object);
+        struct v3 check_applied_y = model_apply_y(raw_point_check, check_object);
+        if (!v3_between(&check_applied_x, point_a, point_b)) {
+          info_collision->x = false;
+        } else if (!v3_between(&check_applied_y, point_a, point_b)) {
+          info_collision->y = false;
+        }
         return true;
       }
     }
@@ -685,33 +726,50 @@ get_render_object(GLuint id)
 }
 
 void
-advance_object(GLuint id)
+object_apply_delta(GLuint id)
 {
   struct render_object * obj = get_render_object(id);
-  object_translate(id, &obj->state.force);
 
   obj->bound_square = get_bound_square(obj);
-  obj->bound_square_model = obj->bound_square;
+
   struct bound_square * bounds_model = &obj->bound_square_model;
+  *bounds_model = obj->bound_square;
 
   for (size_t i=0; i<COUNT(bounds_model->points); i++) {
-    bounds_model->points[i] = m4_mul_v3(&obj->m4_model,
+    bounds_model->points[i] = m4_mul_v3(&obj->m4_model_delta,
         &bounds_model->points[i]);
   }
-  obj->point_middle_model = m4_mul_v3(&obj->m4_model,
+  obj->point_middle_model = m4_mul_v3(&obj->m4_model_delta,
       &obj->point_middle);
+  obj->m4_model_applied = m4_add(&obj->m4_model_delta, &obj->m4_model);
 }
 
 void
-advance_objects(void)
+object_advance(GLuint id)
+{
+  struct render_object * obj = get_render_object(id);
+  m4_copy(&obj->m4_model, &obj->m4_model_applied);
+}
+
+void
+objects_apply_delta(void)
 {
   for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
-    advance_object(i);
+    object_apply_delta(i);
   }
 }
 
 void
-object_repel(GLuint id_actor, GLuint id_target, struct v3 * penetration_vector)
+objects_advance(void)
+{
+  for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
+    object_advance(i);
+  }
+}
+
+void
+object_repel(GLuint id_actor, GLuint id_target,
+    struct info_collision * info_collision)
 {
   struct render_object * actor = get_render_object(id_actor);
   struct render_object * target = get_render_object(id_target);
@@ -721,28 +779,35 @@ object_repel(GLuint id_actor, GLuint id_target, struct v3 * penetration_vector)
 
   struct v3 right = {{{1.0f, 0.0f, 0.0f}}};
   GLfloat target_angle = v3_angle(&target_vector, &right);
-  if (target_angle > -M_PI/2 && target_angle < M_PI/2) {
-    printf("PUSHING!\n");
-    target->state.force.x = 0;
-    object_add_force(id_target, &(struct v3){{{penetration_vector->x, 0.0f,
-        0.0f}}});
-    advance_object(id_target);
+  if (info_collision->x && info_collision->y) {
+    printf("Came on diagonal!\n");
+  } else if (info_collision->x) {
+    printf("Came from side!\n");
+  } else {
+    printf("Came from top/bottom!\n");
   }
+//  if (target_angle > -M_PI/2 && target_angle < M_PI/2) {
+//    v3_print(info_collision);
+//    target->state.force.x = 0;
+//    object_add_force(id_target, &(struct v3){{{info_collision->x, 0.0f,
+//        0.0f}}});
+//    object_apply_delta(id_target);
+//  }
 }
 
 void
-resolve_collisions(void)
+objects_resolve_collisions(void)
 {
   for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
-    struct v3 penetration_vector = {0};
-    if (i != id_object_player && object_intersects_player(i, &penetration_vector)) {
-      object_repel(i, id_object_player, &penetration_vector);
+    struct info_collision info_collision = {0};
+    if (i != id_object_player && object_intersects_player(i, &info_collision)) {
+      object_repel(i, id_object_player, &info_collision);
     }
   }
 }
 
 void
-reset_forces(void)
+objects_reset_forces(void)
 {
   for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
     get_render_object(i)->state.force = (struct v3){{{0.0f, 0.0f, 0.0f}}};
@@ -752,9 +817,10 @@ reset_forces(void)
 void
 physics_tick(void)
 {
-  advance_objects();
-  resolve_collisions();
-  reset_forces();
+  objects_apply_delta();
+  objects_resolve_collisions();
+  objects_advance();
+  objects_reset_forces();
 }
 
 void

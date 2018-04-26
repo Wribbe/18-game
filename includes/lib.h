@@ -112,6 +112,8 @@ struct render_object {
   GLuint render_type;
   struct vao vao;
   struct m4 m4_model;
+  struct m4 m4_model_delta;
+  struct m4 m4_model_applied;
   struct bound_points bound_points;
   struct bound_square bound_square;
   struct bound_square bound_square_model;
@@ -120,9 +122,10 @@ struct render_object {
   struct state state;
 };
 
-struct side {
-  struct v3 p[2];
-  struct v3 normal;
+struct info_collision {
+  bool x;
+  bool y;
+  struct v3 penetration_vector;
 };
 
 /* External definitions.
@@ -285,8 +288,14 @@ m4_mul(struct m4 * m1, struct m4 * m2);
 struct m4
 m4_mul3(struct m4 * m1, struct m4 * m2, struct m4 * m3);
 
+void
+m4_copy(struct m4 * d, struct m4 * s);
+
 struct m4
 m4_identity(void);
+
+struct m4
+m4_add(struct m4 * a, struct m4 * b);
 
 /* object_create.c */
 

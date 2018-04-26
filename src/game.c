@@ -26,7 +26,7 @@ int main(void)
 
   struct v3 translations[] = {
     {{{0.0f, 0.0f, 0.0f}}},
-    {{{1.0f, 0.0f, 0.0f}}},
+    {{{1.0f,-1.2f, 0.0f}}},
     {{{0.0f, 1.0f, 0.0f}}},
     {{{-1.0f, -1.0f, 0.0f}}},
     {{{-2.0f, -1.0f, 0.0f}}},
@@ -39,7 +39,8 @@ int main(void)
     object_translate(objects[i], &translations[i]);
   }
 
-  object_scale(objects[2], &(struct v3){{{1.0f, 0.1f, 1.0f}}});
+  object_scale(objects[1], &(struct v3){{{2.0f, 0.1f, 1.0f}}});
+  object_scale(objects[4], &(struct v3){{{1.0f, 0.1f, 1.0f}}});
   object_scale(objects[3], &(struct v3){{{0.1f, 1.0f, 1.0f}}});
 
   set_as_player(objects[4]);

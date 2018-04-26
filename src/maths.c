@@ -218,6 +218,27 @@ m4_mul3(struct m4 * m1, struct m4 * m2, struct m4 * m3)
   return ret;
 }
 
+void
+m4_copy(struct m4 * d, struct m4 * s)
+{
+  for (size_t i = 0; i<4; i++) {
+    for (size_t j = 0; j<4; j++) {
+      d->m[i][j] = s->m[i][j];
+    }
+  }
+}
+
+struct m4
+m4_add(struct m4 * a, struct m4 * b) {
+  struct m4 ret = {0};
+  for (size_t i = 0; i<4; i++) {
+    for (size_t j = 0; j<4; j++) {
+      ret.m[i][j] = a->m[i][j] + b->m[i][j];
+    }
+  }
+  return ret;
+}
+
 struct m4
 m4_identity(void)
 {
