@@ -731,17 +731,19 @@ object_apply_delta(GLuint id)
   struct render_object * obj = get_render_object(id);
 
   obj->bound_square = get_bound_square(obj);
+  object_translate(id, &obj->state.force);
 
   struct bound_square * bounds_model = &obj->bound_square_model;
   *bounds_model = obj->bound_square;
 
+  obj->m4_model_applied = m4_mul(&obj->m4_model_delta, &obj->m4_model);
+
   for (size_t i=0; i<COUNT(bounds_model->points); i++) {
-    bounds_model->points[i] = m4_mul_v3(&obj->m4_model_delta,
+    bounds_model->points[i] = m4_mul_v3(&obj->m4_model_applied,
         &bounds_model->points[i]);
   }
-  obj->point_middle_model = m4_mul_v3(&obj->m4_model_delta,
+  obj->point_middle_model = m4_mul_v3(&obj->m4_model_applied,
       &obj->point_middle);
-  obj->m4_model_applied = m4_add(&obj->m4_model_delta, &obj->m4_model);
 }
 
 void
@@ -810,7 +812,9 @@ void
 objects_reset_forces(void)
 {
   for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
-    get_render_object(i)->state.force = (struct v3){{{0.0f, 0.0f, 0.0f}}};
+    struct render_object * obj = get_render_object(i);
+    obj->state.force = (struct v3){{{0.0f, 0.0f, 0.0f}}};
+    obj->m4_model_delta = m4_identity();
   }
 }
 
