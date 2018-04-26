@@ -527,6 +527,44 @@ model_apply_y(struct v3 * p, struct render_object * obj)
   return ret;
 }
 
+struct v3
+get_penetration_vector(struct info_collision * info_collision,
+    struct render_object * obj, struct v3 * raw_check, struct v3 * check,
+    struct v3 * a, struct v3 * b)
+  /* Return penetration vector between the check point and either of
+   * points a and b, depending on which one is closest to previous point.
+   */
+{
+  struct v3 prev_check = m4_mul_v3(&obj->m4_model, raw_check);
+
+  struct v3 diff_a = v3_sub(a, &prev_check);
+  diff_a = v3_abs(&diff_a);
+  struct v3 diff_b = v3_sub(b, &prev_check);
+  diff_b = v3_abs(&diff_b);
+
+  struct v3 check_a = v3_sub(a, check);
+  struct v3 check_b = v3_sub(b, check);
+
+  if (info_collision->x) {
+    if (diff_a.x < diff_b.x) {
+      return check_a;
+    } else {
+      return check_b;
+    }
+  } else if (info_collision->y) {
+    if (diff_a.y < diff_b.y) {
+      return check_a;
+    } else {
+      return check_b;
+    }
+  }
+
+  if (v3_magnitude(&diff_a) < v3_magnitude(&diff_b)) {
+    return check_a;
+  }
+  return check_b;
+}
+
 
 bool
 object_intersects_player(GLuint id, struct info_collision * info_collision)
@@ -544,8 +582,9 @@ object_intersects_player(GLuint id, struct info_collision * info_collision)
 
   bool collision = false;
 
-  struct v3 * raw_point_check = NULL;
   struct render_object * check_object = NULL;
+  struct v3 * raw_point_check = NULL;
+  struct v3 * point_check = NULL;
   struct v3 * point_a = NULL;
   struct v3 * point_b = NULL;
 
@@ -555,6 +594,7 @@ object_intersects_player(GLuint id, struct info_collision * info_collision)
             &bounds_obj.points[j]))
       {
         raw_point_check = &obj_player->bound_square.points[i];
+        point_check = &bounds_player.points[i];
         point_a = &bounds_obj.points[j-1];
         point_b = &bounds_obj.points[j];
         check_object = obj_player;
@@ -563,6 +603,7 @@ object_intersects_player(GLuint id, struct info_collision * info_collision)
             &bounds_player.points[j]))
       {
         raw_point_check = &obj->bound_square.points[i];
+        point_check = &bounds_obj.points[i];
         point_a = &bounds_player.points[j-1];
         point_b = &bounds_player.points[j];
         check_object = obj;
@@ -572,13 +613,18 @@ object_intersects_player(GLuint id, struct info_collision * info_collision)
         objects_set_colliding(id_object_player, id, true);
         info_collision->x = true;
         info_collision->y = true;
-        struct v3 check_applied_x = model_apply_x(raw_point_check, check_object);
-        struct v3 check_applied_y = model_apply_y(raw_point_check, check_object);
+        struct v3 check_applied_x = model_apply_x(raw_point_check,
+            check_object);
+        struct v3 check_applied_y = model_apply_y(raw_point_check,
+            check_object);
         if (!v3_between(&check_applied_x, point_a, point_b)) {
           info_collision->x = false;
         } else if (!v3_between(&check_applied_y, point_a, point_b)) {
           info_collision->y = false;
         }
+        info_collision->penetration_vector =
+          get_penetration_vector(info_collision, check_object, raw_point_check,
+              point_check, point_a, point_b);
         return true;
       }
     }
@@ -787,8 +833,10 @@ object_repel(GLuint id_actor, GLuint id_target,
     printf("Came on diagonal!\n");
   } else if (info_collision->x) {
     printf("Came from side!\n");
+    printf("Should move: %f in x-axis\n", info_collision->penetration_vector.x);
   } else {
     printf("Came from top/bottom!\n");
+    printf("Should move: %f in y-axis\n", info_collision->penetration_vector.y);
   }
 //  if (target_angle > -M_PI/2 && target_angle < M_PI/2) {
 //    v3_print(info_collision);
