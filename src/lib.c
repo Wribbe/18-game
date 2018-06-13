@@ -606,7 +606,7 @@ object_intersects_player(GLuint id, struct info_collision * info_collision)
         point_check = &bounds_obj.points[i];
         point_a = &bounds_player.points[j-1];
         point_b = &bounds_player.points[j];
-        check_object = obj;
+        check_object = obj_player;
         collision = true;
       }
       if (collision) {
