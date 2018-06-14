@@ -27,6 +27,13 @@ enum obj_state {
   OBJ_STATE_COLLISION,
 };
 
+enum axis {
+  AXIS_ALL,
+  AXIS_X,
+  AXIS_Y,
+  AXIS_Z,
+};
+
 /* Macros
  * ------ */
 #define UNUSED(x) (void)x

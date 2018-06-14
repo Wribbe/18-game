@@ -776,12 +776,26 @@ get_render_object(GLuint id)
 }
 
 void
-object_apply_delta(GLuint id)
+object_apply_delta(GLuint id, enum axis axis)
 {
   struct render_object * obj = get_render_object(id);
 
+  switch(axis) {
+    case AXIS_ALL:
+      object_translate(id, &obj->state.force);
+      break;
+    case AXIS_X:
+      object_translate(id, &(struct v3){{{obj->state.force.x, 0.0f, 0.0f}}});
+      break;
+    case AXIS_Y:
+      object_translate(id, &(struct v3){{{0.0f, obj->state.force.y, 0.0f}}});
+      break;
+    case AXIS_Z:
+      object_translate(id, &(struct v3){{{0.0f, 0.0f, obj->state.force.z}}});
+      break;
+  }
+
   obj->bound_square = get_bound_square(obj);
-  object_translate(id, &obj->state.force);
 
   struct bound_square * bounds_model = &obj->bound_square_model;
   *bounds_model = obj->bound_square;
@@ -807,7 +821,7 @@ void
 objects_apply_delta(void)
 {
   for (size_t i=FIRST_RENDER_OBJECT; i<last_render_object; i++) {
-    object_apply_delta(i);
+    object_apply_delta(i, AXIS_ALL);
   }
 }
 
