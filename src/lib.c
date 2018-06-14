@@ -529,40 +529,40 @@ model_apply_y(struct v3 * p, struct render_object * obj)
 
 struct v3
 get_penetration_vector(struct info_collision * info_collision,
-    struct render_object * obj, struct v3 * raw_check, struct v3 * check,
-    struct v3 * a, struct v3 * b)
+    bool invert, struct v3 * check, struct v3 * a, struct v3 * b)
   /* Return penetration vector between the check point and either of
    * points a and b, depending on which one is closest to previous point.
+   *
+   * Inverts returned pointer if the checked object is anything other than
+   * player object.
    */
 {
-  struct v3 prev_check = m4_mul_v3(&obj->m4_model, raw_check);
-
-  struct v3 diff_a = v3_sub(a, &prev_check);
-  diff_a = v3_abs(&diff_a);
-  struct v3 diff_b = v3_sub(b, &prev_check);
-  diff_b = v3_abs(&diff_b);
-
   struct v3 check_a = v3_sub(a, check);
   struct v3 check_b = v3_sub(b, check);
 
+  struct v3 ret = {{{0}}};
+
   if (info_collision->x) {
-    if (diff_a.x < diff_b.x) {
-      return check_a;
+    if (fabsf(check_a.x) < fabsf(check_b.x)) {
+      v3_copy(&ret, &check_a);
     } else {
-      return check_b;
+      v3_copy(&ret, &check_b);
     }
   } else if (info_collision->y) {
-    if (diff_a.y < diff_b.y) {
-      return check_a;
+    if (fabsf(check_a.y) < fabsf(check_b.y)) {
+      v3_copy(&ret, &check_a);
     } else {
-      return check_b;
+      v3_copy(&ret, &check_b);
     }
+  } else {
+    ret = v3_add(&check_a, &check_b);
   }
 
-  if (v3_magnitude(&diff_a) < v3_magnitude(&diff_b)) {
-    return check_a;
+  if (invert) {
+    ret = v3_invert(&ret);
   }
-  return check_b;
+
+  return ret;
 }
 
 
@@ -587,6 +587,7 @@ object_intersects_player(GLuint id, struct info_collision * info_collision)
   struct v3 * point_check = NULL;
   struct v3 * point_a = NULL;
   struct v3 * point_b = NULL;
+  bool invert_penetration_vector = false;
 
   for (size_t i=0; i<COUNT(bounds_player.points); i++) {
     for (size_t j=1; j<COUNT(bounds_obj.points); j++) {
@@ -608,6 +609,7 @@ object_intersects_player(GLuint id, struct info_collision * info_collision)
         point_b = &bounds_player.points[j];
         check_object = obj_player;
         collision = true;
+        invert_penetration_vector = true;
       }
       if (collision) {
         objects_set_colliding(id_object_player, id, true);
@@ -623,7 +625,7 @@ object_intersects_player(GLuint id, struct info_collision * info_collision)
           info_collision->y = false;
         }
         info_collision->penetration_vector =
-          get_penetration_vector(info_collision, check_object, raw_point_check,
+          get_penetration_vector(info_collision, invert_penetration_vector,
               point_check, point_a, point_b);
         return true;
       }
